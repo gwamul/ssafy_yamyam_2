@@ -99,26 +99,26 @@
 ## 주요 화면
 ### 챌린지 목록
 
-![alt text](<image\challenge\헬스 챌린지 전체.png>)
+![alt text](<image/challenge/헬스 챌린지 전체.png>)
 > 사용자들이 작성한 식단 혹은 챌린지를 구독할 수 있습니다
 
 ### 내 챌린지
-![alt text](<image\challenge\내 챌린지.png>)
+![alt text](<image/challenge/내 챌린지.png>)
 > 나만의 챌린지와 미션들을 확인할 수 있습니다.
 
 ### 챌린지 만들기
-![alt text](<image\challenge\챌린지 만들기.png>)
+![alt text](<image/challenge/챌린지 만들기.png>)
 > 나만의 챌린지를 직접 만들 수 있습니다.
 
 
-![alt text](image\challenge\챌린지생성1.png)
+![alt text](image/challenge/챌린지생성1.png)
 > 챌린지 이름, 난이도, 기간, 목표 칼로리를 설정한 후, 음식 DB에서 칼로리와 영양성분을 가져와 식단을 구성합니다.
 
-![alt text](<image\challenge\챌린지 생성 완료.png>)
+![alt text](<image/challenge/챌린지 생성 완료.png>)
 > 식단 생성이 완료되었습니다!
 
 
-![alt text](<image\challenge\추가후 헬스 챌린지.png>)
+![alt text](<image/challenge/추가후 헬스 챌린지.png>)
 > 추가한 챌린지는 챌린지 목록에 추가되며, 다른 사람에게 공유하거나, 다른 사람의 챌린지를 구독할 수 있습니다.
 
 
