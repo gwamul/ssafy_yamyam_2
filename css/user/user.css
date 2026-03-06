@@ -1,21 +1,14 @@
 /* Modern Clean User Styles */
 
-:root {
-    --primary-color: #0066ff;
-    --bg-light: #f8f9fc;
-    --text-main: #1d1d1f;
-    --text-muted: #86868b;
-    --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
-    --border-soft: #f2f2f7;
-}
-
 /* Main Content Centering */
 .main-content {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    justify-content: center; /* 수직 중앙 정렬 */
-    align-items: center;     /* 수평 중앙 정렬 */
+    justify-content: center;
+    /* 수직 중앙 정렬 */
+    align-items: center;
+    /* 수평 중앙 정렬 */
     background-color: var(--bg-light);
 }
 
@@ -23,7 +16,8 @@
     width: 100%;
     max-width: 800px;
     padding: 40px 20px;
-    margin: 0; /* 중앙 정렬을 위해 기존 margin 제거 */
+    margin: 0;
+    /* 중앙 정렬을 위해 기존 margin 제거 */
 }
 
 /* Header Styles */
@@ -44,7 +38,8 @@
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.12em; /* 여유로운 자간 */
+    letter-spacing: 0.12em;
+    /* 여유로운 자간 */
     margin-bottom: 8px;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
 }
@@ -53,7 +48,8 @@
     font-size: 40px;
     font-weight: 700;
     color: var(--text-main);
-    letter-spacing: -0.025em; /* 제목은 약간 좁은 자간으로 웅장하게 */
+    letter-spacing: -0.025em;
+    /* 제목은 약간 좁은 자간으로 웅장하게 */
     margin: 0;
     line-height: 1.1;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
@@ -70,13 +66,21 @@
 }
 
 /* Auth Layouts */
-#authChoiceAction, .auth-section {
+#authChoiceAction,
+.auth-section {
     animation: fadeInScale 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.98) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
+    from {
+        opacity: 0;
+        transform: scale(0.98) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 /* Profile Main Card */
@@ -91,7 +95,8 @@
 
 /* 타인 프로필 강조 스타일 */
 .profile-main-card.others-profile {
-    border: 2px solid #5e5ce6; /* 보라색 테두리 */
+    border: 2px solid #BCCA8C;
+    /* 보라색 테두리 */
     box-shadow: 0 12px 40px rgba(94, 92, 230, 0.12);
 }
 
@@ -99,7 +104,7 @@
     position: absolute;
     top: -12px;
     left: 40px;
-    background: #5e5ce6;
+    background: #BCCA8C;
     color: white;
     padding: 4px 12px;
     border-radius: 8px;
@@ -110,7 +115,7 @@
 .btn-back-to-my {
     background: none;
     border: none;
-    color: #5e5ce6;
+    color: #BCCA8C;
     font-size: 14px;
     font-weight: 600;
     padding: 0;
@@ -165,7 +170,8 @@
 }
 
 /* Follower List Styles */
-.follower-avatar, .follower-avatar-placeholder {
+.follower-avatar,
+.follower-avatar-placeholder {
     width: 44px;
     height: 44px;
     border-radius: 12px;
@@ -173,7 +179,7 @@
 }
 
 .follower-avatar-placeholder {
-    background: linear-gradient(135deg, var(--primary-color), #5e5ce6);
+    background: linear-gradient(135deg, var(--primary-color), #BCCA8C);
     color: white;
     display: flex;
     align-items: center;
@@ -198,7 +204,7 @@
 .profile-avatar {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, var(--primary-color), #5e5ce6);
+    background: linear-gradient(135deg, var(--primary-color), #BCCA8C);
     border-radius: 22px;
     display: flex;
     align-items: center;
@@ -206,7 +212,8 @@
     color: white;
     font-size: 32px;
     font-weight: 700;
-    overflow: hidden; /* 이미지가 넘치지 않게 */
+    overflow: hidden;
+    /* 이미지가 넘치지 않게 */
 }
 
 .avatar-img {
@@ -333,9 +340,17 @@
 }
 
 .btn-primary:hover {
-    background: #0055d4;
+    background: var(--primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(0, 102, 255, 0.2);
+    box-shadow: 0 8px 20px rgba(188, 202, 140, 0.35);
+}
+
+.btn-link {
+    color: var(--primary-color);
+}
+
+.btn-link:hover {
+    color: var(--primary-hover);
 }
 
 .form-control {
@@ -426,7 +441,8 @@
     color: var(--text-main);
 }
 
-.progress-label, .progress-value {
+.progress-label,
+.progress-value {
     font-size: 13px;
     font-weight: 600;
     color: var(--text-muted);
@@ -465,7 +481,7 @@
     .profile-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .profile-main-card {
         padding: 24px;
     }

@@ -52,7 +52,7 @@
 }
 
 .food-item-card:hover {
-    border-color: #16a34a;
+    border-color: #E7AE3B;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
@@ -98,15 +98,15 @@
 }
 
 .meal-block:hover {
-    border-color: #16a34a;
+    border-color: #E7AE3B;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     transform: translateY(-2px);
 }
 
 .meal-block.active {
-    background-color: #f0fdf4;
-    border-color: #16a34a;
-    border-left: 4px solid #16a34a;
+    background-color: #FFFBF0;
+    border-color: #E7AE3B;
+    border-left: 4px solid #E7AE3B;
 }
 
 .meal-block-header {
@@ -125,7 +125,7 @@
 .meal-block-calories {
     font-size: 13px;
     font-weight: bold;
-    color: #16a34a;
+    color: #E7AE3B;
 }
 
 .meal-block-items {
@@ -142,13 +142,4 @@
 /* 패널 컨테이너 애니메이션 */
 #viewDietPanel {
     transition: opacity 0.3s ease;
-}
-
-/* 모달 애니메이션 빠르게 (Bootstrap 기본 300ms → 150ms) */
-.modal.fade .modal-dialog {
-    transition: transform 0.15s ease-out;
-}
-
-.modal.fade {
-    transition: opacity 0.15s linear;
 }

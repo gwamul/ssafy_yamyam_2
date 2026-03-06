@@ -4,6 +4,15 @@
     box-sizing: border-box;
 }
 
+:root {
+    --primary-color: #BCCA8C;
+    --primary-hover: #68723D;
+
+    /* bootstrap override */
+    --bs-primary: #BCCA8C;
+    --bs-primary-rgb: 188, 202, 140;
+}
+
 html,
 body {
     height: 100%;
@@ -25,7 +34,7 @@ body {
 /* ========== 좌측 아이콘 사이드바 (60px 고정) ========== */
 .icon-sidebar {
     width: 60px;
-    background: #1e1e1e;
+    background: #2C1A00;
     border-right: 1px solid #333;
     display: flex;
     flex-direction: column;
@@ -53,6 +62,18 @@ body {
 .logo {
     display: block;
 }
+
+.brand-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 140px;
+    color: white;
+    letter-spacing: 8px;
+    text-align: center;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
 
 .sidebar-icons {
     display: flex;
@@ -84,7 +105,7 @@ body {
 }
 
 .sidebar-icon.active {
-    background: #16a34a;
+    background: #E7AE3B;
     color: #fff;
 }
 
@@ -131,7 +152,7 @@ body {
 .content-header h1 {
     font-size: 32px;
     font-weight: 700;
-    color: #1e1e1e;
+    color: #2C1A00;
     margin-bottom: 8px;
 }
 
@@ -173,7 +194,7 @@ body {
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #1e1e1e;
+    color: #2C1A00;
 }
 
 .hero-card p {
@@ -208,7 +229,7 @@ body {
     display: block;
     font-size: 32px;
     font-weight: 700;
-    color: #16a34a;
+    color: #E7AE3B;
     margin-bottom: 4px;
 }
 
@@ -241,7 +262,7 @@ body {
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #16a34a;
+    border-left: 4px solid #E7AE3B;
     transition: all 0.2s;
 }
 
@@ -259,7 +280,7 @@ body {
 
 .meal-date {
     font-weight: 600;
-    color: #1e1e1e;
+    color: #2C1A00;
     font-size: 16px;
 }
 
@@ -277,13 +298,13 @@ body {
 }
 
 .meal-type.lunch {
-    background: #bbf7d0;
-    color: #166534;
+    background: #FDF3D0;
+    color: #3D0100;
 }
 
 .meal-type.dinner {
-    background: #dcfce7;
-    color: #14532d;
+    background: #FEF9E7;
+    color: #3D0100;
 }
 
 .meal-type.snack {
@@ -315,12 +336,12 @@ body {
     background: #f8f9fa;
     padding: 12px;
     border-radius: 8px;
-    border-left: 3px solid #28a745;
+    border-left: 3px solid #E7AE3B;
 }
 
 .food-name {
     font-weight: 600;
-    color: #1e1e1e;
+    color: #2C1A00;
     margin-bottom: 8px;
     font-size: 14px;
 }
@@ -348,20 +369,20 @@ body {
 
 .nutrition-item .value {
     display: block;
-    color: #16a34a;
+    color: #E7AE3B;
     font-weight: 700;
     font-size: 13px;
 }
 
 .nutrition-totals {
-    background: linear-gradient(135deg, #f0fdf4 0%, #f3e5f5 100%);
+    background: linear-gradient(135deg, #FFFBF0 0%, #f3e5f5 100%);
     border-radius: 8px;
     padding: 16px;
-    border: 1px solid #bbf7d0;
+    border: 1px solid #FDF3D0;
 }
 
 .nutrition-totals h6 {
-    color: #166534;
+    color: #3D0100;
     font-weight: 700;
     margin-bottom: 12px;
     font-size: 14px;
@@ -378,7 +399,7 @@ body {
     padding: 12px;
     border-radius: 6px;
     text-align: center;
-    border: 1px solid #bbf7d0;
+    border: 1px solid #FDF3D0;
 }
 
 .nutrition-item-total .label {
@@ -390,7 +411,7 @@ body {
 
 .nutrition-item-total .value {
     display: block;
-    color: #16a34a;
+    color: #E7AE3B;
     font-weight: 700;
     font-size: 16px;
 }
@@ -419,7 +440,7 @@ body {
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #16a34a;
+    border-color: #E7AE3B;
     box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
 }
 
@@ -430,13 +451,13 @@ body {
     padding: 10px 16px;
 }
 
-.btn-primary {
-    background: #16a34a;
+.btn-accent {
+    background: #E7AE3B;
     border: none;
 }
 
-.btn-primary:hover {
-    background: #15803d;
+.btn-accent:hover {
+    background: #B3B56D;
 }
 
 /* ========== 반응형 ========== */
@@ -674,4 +695,114 @@ html {
     cursor: pointer;
     z-index: 100;
     position: relative;
+}
+
+/* =========================
+   YAMYAM Bootstrap Theme
+========================= */
+
+:root {
+    --primary-color: #BCCA8C;
+
+    /* bootstrap override */
+    --bs-primary: #BCCA8C;
+    --bs-primary-rgb: 188, 202, 140;
+}
+
+/* Primary Button */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.btn-primary:active {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.btn-primary:focus {
+    box-shadow: 0 0 0 0.25rem rgba(188, 202, 140, 0.4);
+}
+
+
+/* Outline Button */
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: white;
+}
+
+.btn-outline-primary:active {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+
+/* Text */
+.text-primary {
+    color: #BCCA8C !important;
+}
+
+/* Background */
+.bg-primary {
+    background-color: #BCCA8C !important;
+}
+
+/* Border */
+.border-primary {
+    border-color: #BCCA8C !important;
+}
+
+/* Form Focus */
+.form-control:focus {
+    border-color: #BCCA8C;
+    box-shadow: 0 0 0 0.2rem rgba(188, 202, 140, 0.25);
+}
+
+/* Link Hover */
+a:hover {
+    color: var(--primary-hover);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(188, 202, 140, 0.4);
+}
+
+
+.btn-primary {
+    background: var(--primary-color);
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(188, 202, 140, 0.35);
+}
+
+.btn-link {
+    color: var(--primary-color);
+}
+
+.btn-link:hover {
+    color: var(--primary-hover);
 }
