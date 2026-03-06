@@ -5,25 +5,22 @@ let editId = null;
 let selectedDate = new Date(); // 현재 선택된 날짜 (기본 오늘)
 
 // -----------------------------
-// 음식 이미지 URL 생성 헬퍼
-// source.unsplash.com/400x400/?{영어이름},food 형식 사용
-// 식품명에서 카테고리(언더바_앞)와 특수문자를 제거 후 영어로 변환
+// 음식 더미 이미지 목록 & 랜덤 선택
 // -----------------------------
-function getFoodImgUrl(foodName, engName = "") {
-    // 영어 이름이 있으면 영어 사용
-    let name = engName || foodName;
-    // 언더바 처리
-    if (name.includes('_')) {
-        name = name.split('_').pop();
-    }
-    // 괄호 제거
-    name = name.replace(/\(.*?\)/g, '').trim();
-    // 수식어 외 특수문자 제거 (타비에 어움리는 단어만)
-    name = name.replace(/[^\w\s가-힣]/g, ' ').trim();
-    // URL 인코딩
-    const encoded = encodeURIComponent(name);
-    // 더 나은 건강식품 기반 Unsplash 모득 지원
-    return `https://source.unsplash.com/100x100/?${encoded},korean,food`;
+const DUMMY_FOOD_IMAGES = [
+    "./image/food/cow_bulgogi.jpg",
+    "./image/food/delux_pizza.jpg",
+    "./image/food/friedegg_ham.jpg",
+    "./image/food/ham_egg_sand.jpg",
+    "./image/food/iced_americano.jpg",
+    "./image/food/margherita_pizza.webp",
+    "./image/food/pizza.jpg",
+    "./image/food/salad.jpg",
+    "./image/food/sweet_potato_latte.png",
+];
+
+function getFoodImgUrl() {
+    return DUMMY_FOOD_IMAGES[Math.floor(Math.random() * DUMMY_FOOD_IMAGES.length)];
 }
 
 // -----------------------------
@@ -431,7 +428,8 @@ function renderDietSidebar() {
         else if (diet["식사구분"] === "간식") badgeClass = "bg-primary text-white";
 
         const foodNamesStr = foodNames.join(", ");
-        const dummyImgUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop";
+        const dummyImgUrl = getFoodImgUrl();
+
 
         container.innerHTML += `
         <div class="meal-block" id="meal-block-${diet["식단ID"]}" onclick="viewDiet(${diet["식단ID"]})">
