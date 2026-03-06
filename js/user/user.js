@@ -117,10 +117,19 @@ function handleUpdateProfile() {
     const disease = document.getElementById('editDisease').value || '없음';
 
     let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
-    
-    // 프로필 업데이트
+    const currentUser = users[userId];
+
+    if (!currentUser) return;
+
+    // 기존 프로필 사진 유지하면서 정보 업데이트
     users[userId].profile = {
-        name, birthDate, gender, height, weight, disease
+        ...currentUser.profile, // 기존 데이터(image 등) 복사
+        name, 
+        birthDate, 
+        gender, 
+        height, 
+        weight, 
+        disease
     };
 
     // 비밀번호 입력 시에만 비밀번호 업데이트
@@ -515,8 +524,14 @@ window.handleAddFollower = function() {
     localStorage.setItem('yamyam_users', JSON.stringify(users));
     
     input.value = '';
-    renderFollowerList();
-    renderMyPage(myId);
+
+    // UI 즉시 업데이트
+    const currentViewIdTag = document.querySelector('.user-id-tag');
+    const currentViewId = currentViewIdTag ? currentViewIdTag.textContent.replace('@', '') : myId;
+
+    renderFollowerList(currentViewId); 
+    renderMyPage(currentViewId);
+    
     alert('팔로워가 추가되었습니다.');
 };
 
@@ -527,11 +542,19 @@ window.handleRemoveFollower = function(targetId) {
     const myId = localStorage.getItem('yamyam_session');
     let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
 
+    // 팔로워 삭제
     users[myId].followers = users[myId].followers.filter(id => id !== targetId);
     localStorage.setItem('yamyam_users', JSON.stringify(users));
 
-    renderFollowerList();
-    renderMyPage(myId);
+    // 현재 모달에 표시된 '목록의 소유자' 아이디를 가져옴 (내 프로필 또는 타인 프로필)
+    // 팁: renderFollowerList가 호출될 때 사용된 ownerId를 기반으로 화면을 갱신해야 함
+    // 여기서는 간단히 현재 페이지에 렌더링된 유저 아이디(@id)를 추출하여 갱신
+    const currentViewIdTag = document.querySelector('.user-id-tag');
+    const currentViewId = currentViewIdTag ? currentViewIdTag.textContent.replace('@', '') : myId;
+
+    // UI 즉시 업데이트
+    renderFollowerList(currentViewId); // 모달 내 목록 갱신
+    renderMyPage(currentViewId);      // 프로필 카드의 팔로워 숫자 갱신
 };
 
 // 프로필 사진 업로드 처리
