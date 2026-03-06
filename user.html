@@ -145,6 +145,7 @@
 
                     <!-- 마이페이지 탭 메뉴 -->
                     <div class="user-tab-nav mb-4">
+                        <div class="tab-indicator"></div>
                         <button class="tab-item active" onclick="switchUserTab('profile')">내 프로필</button>
                         <button class="tab-item" onclick="switchUserTab('challenges')">구독 챌린지</button>
                     </div>
@@ -157,7 +158,7 @@
                                 <div class="d-flex gap-2">
                                     <button id="editProfileBtn" class="btn btn-outline-primary btn-sm px-3">정보
                                         수정</button>
-                                    <button id="logoutBtn" class="btn btn-outline-danger btn-sm">로그아웃</button>
+                                    <button id="logoutBtn" class="btn btn-outline-secondary btn-sm px-3">로그아웃</button>
                                 </div>
                             </div>
                             <div id="userInfoContent" class="row g-3">
@@ -167,13 +168,13 @@
                             <div class="mt-5 pt-4 border-top">
                                 <div class="d-flex justify-content-between align-items-center opacity-75">
                                     <div>
-                                        <h5 class="text-danger mb-1" style="font-size: 0.95rem; font-weight: 700;">계정 삭제
+                                        <h5 class="text-muted mb-1" style="font-size: 0.95rem; font-weight: 700;">계정 삭제
                                         </h5>
                                         <p class="text-muted mb-0" style="font-size: 0.85rem;">탈퇴 시 모든 데이터가 영구 삭제됩니다.
                                         </p>
                                     </div>
                                     <button id="deleteAccountBtn"
-                                        class="btn btn-link text-danger text-decoration-none fw-bold"
+                                        class="btn btn-link text-muted text-decoration-none fw-bold"
                                         style="font-size: 0.85rem;">회원 탈퇴</button>
                                 </div>
                             </div>
