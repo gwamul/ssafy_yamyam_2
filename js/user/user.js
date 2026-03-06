@@ -310,11 +310,23 @@ function renderMyPage(userId) {
     };
 
     const infoContent = document.getElementById('userInfoContent');
+    const profileImgHtml = user.profile.image 
+        ? `<img src="${user.profile.image}" class="avatar-img" alt="Profile">` 
+        : user.profile.name[0];
+
     infoContent.innerHTML = `
         <div class="col-12">
             <div class="profile-main-card">
                 <div class="profile-header-group">
-                    <div class="profile-avatar">${user.profile.name[0]}</div>
+                    <div class="profile-avatar-wrapper">
+                        <div class="profile-avatar" id="profileAvatarDisplay">
+                            ${profileImgHtml}
+                        </div>
+                        <button class="avatar-edit-btn" onclick="document.getElementById('avatarInput').click()">
+                            <span class="edit-icon">📸</span>
+                        </button>
+                        <input type="file" id="avatarInput" class="d-none" accept="image/*" onchange="handleAvatarUpload(event)">
+                    </div>
                     <div class="profile-title-info">
                         <h2>${user.profile.name}</h2>
                         <span class="user-id-tag">@${userId}</span>
@@ -363,6 +375,40 @@ function renderMyPage(userId) {
 
     // renderDiets(userId);
 }
+
+// 프로필 사진 업로드 처리
+window.handleAvatarUpload = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 이미지 파일 여부 및 용량 체크 (localStorage 제한 고려)
+    if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        return;
+    }
+    if (file.size > 1024 * 1024) { // 1MB 제한
+        alert('이미지 용량이 너무 큽니다. 1MB 이하의 파일을 선택해주세요.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64Image = e.target.result;
+        const userId = localStorage.getItem('yamyam_session');
+        let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+        
+        if (users[userId]) {
+            users[userId].profile.image = base64Image;
+            localStorage.setItem('yamyam_users', JSON.stringify(users));
+            
+            // UI 즉시 업데이트
+            const avatarDisplay = document.getElementById('profileAvatarDisplay');
+            avatarDisplay.innerHTML = `<img src="${base64Image}" class="avatar-img" alt="Profile">`;
+            alert('프로필 사진이 변경되었습니다.');
+        }
+    };
+    reader.readAsDataURL(file);
+};
 
 // 식단 정보 렌더링
 function renderDiets(userId) {
