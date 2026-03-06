@@ -93,6 +93,7 @@ function initEditForm() {
 
     document.getElementById('editId').value = userId;
     document.getElementById('editName').value = user.profile.name;
+    document.getElementById('editBirthDate').value = user.profile.birthDate || '';
     document.getElementById('editHeight').value = user.profile.height;
     document.getElementById('editWeight').value = user.profile.weight;
     document.getElementById('editDisease').value = user.profile.disease;
@@ -109,6 +110,7 @@ function handleUpdateProfile() {
     const userId = localStorage.getItem('yamyam_session');
     const pw = document.getElementById('editPw').value;
     const name = document.getElementById('editName').value;
+    const birthDate = document.getElementById('editBirthDate').value;
     const gender = document.querySelector('input[name="editGender"]:checked').value;
     const height = document.getElementById('editHeight').value;
     const weight = document.getElementById('editWeight').value;
@@ -118,7 +120,7 @@ function handleUpdateProfile() {
     
     // 프로필 업데이트
     users[userId].profile = {
-        name, gender, height, weight, disease
+        name, birthDate, gender, height, weight, disease
     };
 
     // 비밀번호 입력 시에만 비밀번호 업데이트
@@ -136,6 +138,7 @@ function handleRegistration() {
     const id = document.getElementById('regId').value;
     const pw = document.getElementById('regPw').value;
     const name = document.getElementById('userName').value;
+    const birthDate = document.getElementById('userBirthDate').value;
     const gender = document.querySelector('input[name="gender"]:checked').value;
     const height = document.getElementById('userHeight').value;
     const weight = document.getElementById('userWeight').value;
@@ -153,7 +156,7 @@ function handleRegistration() {
     users[id] = {
         pw: pw,
         profile: {
-            name, gender, height, weight, disease
+            name, birthDate, gender, height, weight, disease
         },
         diets: [] // 초기 식단은 비어있음
     };
@@ -293,6 +296,19 @@ function renderMyPage(userId) {
         subtitleEl.innerHTML = "개인 정보 및 건강 지표를 관리하세요.";
     }
 
+    // 만나이 계산 함수
+    const calculateAge = (birthDateStr) => {
+        if (!birthDateStr) return '-';
+        const birthDate = new Date(birthDateStr);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
     const infoContent = document.getElementById('userInfoContent');
     infoContent.innerHTML = `
         <div class="col-12">
@@ -309,6 +325,13 @@ function renderMyPage(userId) {
                     <div class="stat-box">
                         <span class="stat-label">성별</span>
                         <span class="stat-value">${user.profile.gender === 'male' ? '남성' : '여성'}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">생년월일(만나이)</span>
+                        <span class="stat-value" style="font-size: 16px;">
+                            ${user.profile.birthDate || '-'}<br>
+                            <small class="text-primary" style="font-size: 18px; font-weight: 700;">(${calculateAge(user.profile.birthDate)}세)</small>
+                        </span>
                     </div>
                     <div class="stat-box">
                         <span class="stat-label">키</span>
