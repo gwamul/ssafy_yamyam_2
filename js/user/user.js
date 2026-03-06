@@ -204,15 +204,26 @@ window.switchUserTab = function(tabName) {
     // 탭 버튼 상태 변경
     const tabs = document.querySelectorAll('.tab-item');
     tabs.forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    
+    // 이벤트 타겟이 버튼인 경우 active 클래스 부여
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
 
     // 탭 내용 전환
     const contents = ['profileTabContent', 'challengesTabContent'];
-    contents.forEach(c => document.getElementById(c).classList.add('d-none'));
+    contents.forEach(c => {
+        const el = document.getElementById(c);
+        if (el) el.classList.add('d-none');
+    });
     
     const activeContent = document.getElementById(`${tabName}TabContent`);
-    if (activeContent) activeContent.classList.remove('d-none');
+    if (activeContent) {
+        activeContent.classList.remove('d-none');
+        activeContent.classList.add('active');
+    }
 
+    // 챌린지 탭 선택 시 렌더링 호출
     if (tabName === 'challenges') {
         renderSubscribedChallenges();
     }
@@ -222,58 +233,67 @@ window.switchUserTab = function(tabName) {
 function renderSubscribedChallenges() {
     const listContainer = document.getElementById('subscribedChallengesList');
     
-    // 더미 챌린지 데이터
-    const dummyChallenges = [
-        {
-            title: "30일 물 마시기 습관",
-            category: "Habit",
-            progress: 65,
-            daysLeft: 12,
-            icon: "💧",
-            color: "#007aff"
-        },
-        {
-            title: "주 3회 고단백 식단",
-            category: "Diet",
-            progress: 40,
-            daysLeft: 5,
-            icon: "🥩",
-            color: "#ff9500"
-        },
-        {
-            title: "밀가루 끊기 챌린지",
-            category: "Health",
-            progress: 90,
-            daysLeft: 2,
-            icon: "🥖",
-            color: "#ff3b30"
-        }
-    ];
+    // challenge.js에서 '도전하기' 클릭 시 저장되는 키 이름
+    const mySubscribed = JSON.parse(localStorage.getItem('mySubscribed')) || [];
 
-    listContainer.innerHTML = dummyChallenges.map(challenge => `
-        <div class="col-md-6 col-lg-4">
-            <div class="challenge-mini-card">
-                <div class="challenge-card-header">
-                    <span class="challenge-icon" style="background: ${challenge.color}15; color: ${challenge.color}">${challenge.icon}</span>
-                    <span class="challenge-category">${challenge.category}</span>
-                </div>
-                <h4 class="challenge-title">${challenge.title}</h4>
-                <div class="challenge-progress-area">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="progress-label">진행률</span>
-                        <span class="progress-value">${challenge.progress}%</span>
+    if (mySubscribed.length === 0) {
+        listContainer.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">아직 참여 중인 챌린지가 없습니다.</p>
+                <a href="challenge.html" class="btn btn-primary rounded-pill px-4">챌린지 찾아보기</a>
+            </div>
+        `;
+        return;
+    }
+
+    listContainer.innerHTML = mySubscribed.map(challenge => {
+        // 진행률 계산 (현재 일차 / 전체 기간)
+        const start = new Date(challenge.startDate || new Date());
+        const diffDays = Math.floor((new Date() - start) / (1000 * 60 * 60 * 24)) + 1;
+        const progress = Math.min(100, Math.round((diffDays / challenge.duration) * 100));
+
+        // 난이도별 테마 색상 설정
+        const themeColor = challenge.difficulty === 'hard' ? '#ff3b30' : 
+                           challenge.difficulty === 'medium' ? '#ff9500' : '#34c759';
+
+        return `
+            <div class="col-md-6 col-lg-4">
+                <div class="challenge-mini-card shadow-sm border-0 rounded-4 p-4 bg-white">
+                    <div class="challenge-card-header d-flex align-items-center mb-3">
+                        <span class="challenge-icon me-2" style="background: ${themeColor}15; color: ${themeColor}; padding: 8px; border-radius: 12px;">🎯</span>
+                        <span class="challenge-category small fw-bold text-uppercase" style="color: ${themeColor}">${challenge.difficulty}</span>
                     </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width: ${challenge.progress}%; background: ${challenge.color}"></div>
+                    <h4 class="challenge-title fw-bold mb-3" style="font-size: 1.1rem;">${challenge.title || challenge.name}</h4>
+                    <div class="challenge-progress-area mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="progress-label small text-muted">진행률</span>
+                            <span class="progress-value small fw-bold">${progress}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background-color: #f1f3f5; border-radius: 10px;">
+                            <div class="progress-bar" style="width: ${progress}%; background: ${themeColor}; border-radius: 10px;"></div>
+                        </div>
                     </div>
-                </div>
-                <div class="challenge-footer">
-                    <span class="days-left">남은 기간: <strong>${challenge.daysLeft}일</strong></span>
+                    <div class="challenge-footer d-flex justify-content-between align-items-center">
+                        <span class="days-left small text-muted">진행: <strong>${diffDays}일차</strong> / ${challenge.duration}일</span>
+                        <button class="btn btn-link text-danger btn-sm p-0 text-decoration-none" onclick="cancelChallenge(${challenge.id})">포기</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
+
+// 챌린지 포기(삭제) 기능
+window.cancelChallenge = function(id) {
+    if (!confirm('정말로 이 챌린지를 중단하시겠습니까? 기록이 삭제됩니다.')) return;
+    
+    let mySubscribed = JSON.parse(localStorage.getItem('mySubscribed')) || [];
+    mySubscribed = mySubscribed.filter(ch => ch.id !== id);
+    localStorage.setItem('mySubscribed', JSON.stringify(mySubscribed));
+    
+    renderSubscribedChallenges();
+    alert('챌린지 참여가 취소되었습니다.');
+};
 
 // 마이페이지 렌더링
 function renderMyPage(targetUserId) {
