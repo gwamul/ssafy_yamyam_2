@@ -4,7 +4,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     width: 100%;
     overflow: hidden;
@@ -83,63 +84,12 @@ body {
 }
 
 .sidebar-icon.active {
-    background: #0098ff;
+    background: #16a34a;
     color: #fff;
 }
 
 .icon-text {
     display: block;
-}
-
-/* ========== 좌측 둘째 패널 (Secondary Sidebar) ========== */
-.secondary-sidebar {
-    width: 280px;
-    background: #f8f8f8;
-    border-right: 1px solid #e0e0e0;
-    overflow-y: auto;
-    padding: 16px;
-    min-height: 100vh;
-    flex-shrink: 0;
-}
-
-#secondary-sidebar-content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.secondary-item {
-    padding: 12px;
-    background: white;
-    border-radius: 6px;
-    border-left: 3px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 14px;
-    border: 1px solid #e0e0e0;
-}
-
-.secondary-item:hover {
-    background: #f0f0f0;
-    border-left-color: #0098ff;
-}
-
-.secondary-item.active {
-    background: #e8f4ff;
-    border-left-color: #0098ff;
-    border: 1px solid #0098ff;
-}
-
-.secondary-item-title {
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: #333;
-    font-size: 13px;
-}
-
-.secondary-item-subtitle {
-    font-size: 12px;
-    color: #666;
 }
 
 /* ========== 메인 콘텐츠 영역 ========== */
@@ -167,6 +117,7 @@ body {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -257,7 +208,7 @@ body {
     display: block;
     font-size: 32px;
     font-weight: 700;
-    color: #0098ff;
+    color: #16a34a;
     margin-bottom: 4px;
 }
 
@@ -290,7 +241,7 @@ body {
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #0098ff;
+    border-left: 4px solid #16a34a;
     transition: all 0.2s;
 }
 
@@ -326,13 +277,13 @@ body {
 }
 
 .meal-type.lunch {
-    background: #a8d8ff;
-    color: #0066cc;
+    background: #bbf7d0;
+    color: #166534;
 }
 
 .meal-type.dinner {
-    background: #b4d8f1;
-    color: #003d82;
+    background: #dcfce7;
+    color: #14532d;
 }
 
 .meal-type.snack {
@@ -397,20 +348,20 @@ body {
 
 .nutrition-item .value {
     display: block;
-    color: #0098ff;
+    color: #16a34a;
     font-weight: 700;
     font-size: 13px;
 }
 
 .nutrition-totals {
-    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    background: linear-gradient(135deg, #f0fdf4 0%, #f3e5f5 100%);
     border-radius: 8px;
     padding: 16px;
-    border: 1px solid #bbdefb;
+    border: 1px solid #bbf7d0;
 }
 
 .nutrition-totals h6 {
-    color: #0066cc;
+    color: #166534;
     font-weight: 700;
     margin-bottom: 12px;
     font-size: 14px;
@@ -427,7 +378,7 @@ body {
     padding: 12px;
     border-radius: 6px;
     text-align: center;
-    border: 1px solid #bbdefb;
+    border: 1px solid #bbf7d0;
 }
 
 .nutrition-item-total .label {
@@ -439,7 +390,7 @@ body {
 
 .nutrition-item-total .value {
     display: block;
-    color: #0098ff;
+    color: #16a34a;
     font-weight: 700;
     font-size: 16px;
 }
@@ -468,8 +419,8 @@ body {
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #0098ff;
-    box-shadow: 0 0 0 3px rgba(0, 152, 255, 0.1);
+    border-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
 }
 
 .btn {
@@ -480,12 +431,12 @@ body {
 }
 
 .btn-primary {
-    background: #0098ff;
+    background: #16a34a;
     border: none;
 }
 
 .btn-primary:hover {
-    background: #0082d9;
+    background: #15803d;
 }
 
 /* ========== 반응형 ========== */
@@ -499,7 +450,7 @@ body {
     .hero-section {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .secondary-sidebar {
         width: 200px;
     }
@@ -510,13 +461,13 @@ body {
         width: 50px;
         padding: 12px 0;
     }
-    
+
     .sidebar-header {
         height: 50px;
         margin-bottom: 12px;
         font-size: 24px;
     }
-    
+
     .sidebar-icon {
         width: 44px;
         height: 44px;
@@ -527,26 +478,28 @@ body {
         width: 160px;
         padding: 12px;
     }
-    
+
     .content-panel {
         padding: 20px;
     }
-    
+
     .content-header h1 {
         font-size: 24px;
     }
-    
+
     .hero-section {
         grid-template-columns: 1fr;
     }
 }
 
 /* 기본 레이아웃 */
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden; /* 배경 영상 집중을 위해 스크롤 방지 */
+    overflow: hidden;
+    /* 배경 영상 집중을 위해 스크롤 방지 */
 }
 
 .app-container {
@@ -574,7 +527,9 @@ body, html {
     transition: transform 0.3s;
 }
 
-.sidebar-icon:hover { transform: scale(1.2); }
+.sidebar-icon:hover {
+    transform: scale(1.2);
+}
 
 /* 영상 배경 관련 */
 .video-layout {
@@ -585,8 +540,10 @@ body, html {
 
 .video-background {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     z-index: -1;
 }
 
@@ -598,15 +555,19 @@ body, html {
 
 .overlay {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.4); /* 영상 위 어둡게 처리하여 글자 가독성 확보 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    /* 영상 위 어둡게 처리하여 글자 가독성 확보 */
 }
 
 /* 중앙 텍스트 */
 .hero-text-center {
     position: absolute;
-    top: 50%; left: 50%;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
     color: white;
@@ -618,7 +579,7 @@ body, html {
     font-weight: 800;
     letter-spacing: -2px;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .main-copy {
@@ -672,8 +633,9 @@ body, html {
 
 /* 위로 올라가는 애니메이션 클래스 (index.html 나가기) */
 .slide-up {
-    transform: translateY(-100vh) scale(0.95); /* 살짝 작아지며 위로 이동 */
-    opacity: 0; 
+    transform: translateY(-100vh) scale(0.95);
+    /* 살짝 작아지며 위로 이동 */
+    opacity: 0;
     filter: blur(5px);
 }
 
@@ -689,6 +651,7 @@ body, html {
         transform: translateY(30px) scale(0.98);
         filter: blur(3px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0) scale(1);
