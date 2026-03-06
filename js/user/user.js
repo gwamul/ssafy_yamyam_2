@@ -296,11 +296,17 @@ window.cancelChallenge = function(id) {
 };
 
 // 마이페이지 렌더링
-function renderMyPage(userId) {
+function renderMyPage(targetUserId) {
+    const myId = localStorage.getItem('yamyam_session');
     const users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
-    const user = users[userId];
-    if (!user) return;
+    const user = users[targetUserId];
+    
+    if (!user) {
+        alert('사용자 정보를 찾을 수 없습니다.');
+        return;
+    }
 
+    const isOthers = myId !== targetUserId;
     showAuthForm('mypage');
     
     const titleEl = document.getElementById('pageTitle');
@@ -308,12 +314,14 @@ function renderMyPage(userId) {
     
     if (titleEl) {
         titleEl.innerHTML = `
-            <span class="header-eyebrow">Member Profile</span>
+            <span class="header-eyebrow">${isOthers ? 'User Profile' : 'Member Profile'}</span>
             <h1 class="header-title">${user.profile.name}님의 프로필</h1>
         `;
     }
     if (subtitleEl) {
-        subtitleEl.innerHTML = "개인 정보 및 건강 지표를 관리하세요.";
+        subtitleEl.innerHTML = isOthers 
+            ? `@${targetUserId} 사용자의 공개된 프로필 정보입니다.`
+            : "개인 정보 및 건강 지표를 관리하세요.";
     }
 
     // 만나이 계산 함수
@@ -334,22 +342,39 @@ function renderMyPage(userId) {
         ? `<img src="${user.profile.image}" class="avatar-img" alt="Profile">` 
         : user.profile.name[0];
 
+    const followerCount = (user.followers || []).length;
+
+    // 타인 프로필일 경우의 스타일 클래스
+    const cardClass = isOthers ? 'profile-main-card others-profile' : 'profile-main-card';
+
     infoContent.innerHTML = `
         <div class="col-12">
-            <div class="profile-main-card">
+            <div class="${cardClass}">
+                ${isOthers ? `
+                    <div class="others-badge">타인 프로필</div>
+                    <button class="btn-back-to-my" onclick="renderMyPage('${myId}')">← 내 프로필로 돌아가기</button>
+                ` : ''}
+                <div class="profile-top-right">
+                    <button class="follower-manage-btn" onclick="openFollowerModal('${targetUserId}')">
+                        <span class="btn-label">Followers</span>
+                        <span class="btn-count">${followerCount}</span>
+                    </button>
+                </div>
                 <div class="profile-header-group">
                     <div class="profile-avatar-wrapper">
                         <div class="profile-avatar" id="profileAvatarDisplay">
                             ${profileImgHtml}
                         </div>
-                        <button class="avatar-edit-btn" onclick="document.getElementById('avatarInput').click()">
-                            <span class="edit-icon">📸</span>
-                        </button>
-                        <input type="file" id="avatarInput" class="d-none" accept="image/*" onchange="handleAvatarUpload(event)">
+                        ${!isOthers ? `
+                            <button class="avatar-edit-btn" onclick="document.getElementById('avatarInput').click()">
+                                <span class="edit-icon">📸</span>
+                            </button>
+                            <input type="file" id="avatarInput" class="d-none" accept="image/*" onchange="handleAvatarUpload(event)">
+                        ` : ''}
                     </div>
                     <div class="profile-title-info">
                         <h2>${user.profile.name}</h2>
-                        <span class="user-id-tag">@${userId}</span>
+                        <span class="user-id-tag">@${targetUserId}</span>
                     </div>
                 </div>
                 
@@ -393,8 +418,121 @@ function renderMyPage(userId) {
         </div>
     `;
 
-    // renderDiets(userId);
+    // 타인 정보일 때는 관리 버튼들을 숨김
+    const actionBtns = document.querySelector('.card .d-flex.gap-2');
+    const deleteSection = document.querySelector('.mt-5.pt-4.border-top');
+    if (isOthers) {
+        if (actionBtns) actionBtns.classList.add('d-none');
+        if (deleteSection) deleteSection.classList.add('d-none');
+    } else {
+        if (actionBtns) actionBtns.classList.remove('d-none');
+        if (deleteSection) deleteSection.classList.remove('d-none');
+    }
 }
+
+// 팔로워 모달 열기 및 렌더링
+window.openFollowerModal = function(targetUserId) {
+    renderFollowerList(targetUserId);
+    const modal = new bootstrap.Modal(document.getElementById('followerModal'));
+    modal.show();
+};
+
+// 팔로워 목록 렌더링
+function renderFollowerList(ownerId) {
+    const myId = localStorage.getItem('yamyam_session');
+    const users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+    const user = users[ownerId];
+    const followers = user.followers || [];
+    const listContainer = document.getElementById('followerList');
+
+    if (followers.length === 0) {
+        listContainer.innerHTML = '<div class="text-center py-4 text-muted">팔로워가 없습니다.</div>';
+        return;
+    }
+
+    listContainer.innerHTML = followers.map(fId => {
+        const fUser = users[fId];
+        const fName = fUser ? fUser.profile.name : '알 수 없는 사용자';
+        const fImg = fUser && fUser.profile.image 
+            ? `<img src="${fUser.profile.image}" class="follower-avatar">` 
+            : `<div class="follower-avatar-placeholder">${fName[0]}</div>`;
+
+        return `
+            <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-3">
+                <div class="d-flex align-items-center gap-3 cursor-pointer" onclick="handleFollowerClick('${fId}')" style="cursor: pointer;">
+                    ${fImg}
+                    <div>
+                        <div class="fw-bold follower-name-link" style="font-size: 0.95rem;">${fName}</div>
+                        <div class="text-muted" style="font-size: 0.85rem;">@${fId}</div>
+                    </div>
+                </div>
+                ${ownerId === myId ? `
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="handleRemoveFollower('${fId}')">삭제</button>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+// 팔로워 클릭 처리 (해당 유저 프로필로 이동)
+window.handleFollowerClick = function(fId) {
+    const modalEl = document.getElementById('followerModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+    
+    renderMyPage(fId);
+};
+
+// 팔로워 추가 처리
+window.handleAddFollower = function() {
+    const input = document.getElementById('newFollowerId');
+    const targetId = input.value.trim();
+    const myId = localStorage.getItem('yamyam_session');
+
+    if (!targetId) return;
+    if (targetId === myId) {
+        alert('본인은 팔로우할 수 없습니다.');
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+
+    // 존재 여부 확인
+    if (!users[targetId]) {
+        alert(`'${targetId}' 아이디를 가진 사용자가 존재하지 않습니다.`);
+        return;
+    }
+
+    // 이미 팔로우 중인지 확인
+    if (!users[myId].followers) users[myId].followers = [];
+    if (users[myId].followers.includes(targetId)) {
+        alert('이미 추가된 팔로워입니다.');
+        return;
+    }
+
+    // 추가
+    users[myId].followers.push(targetId);
+    localStorage.setItem('yamyam_users', JSON.stringify(users));
+    
+    input.value = '';
+    renderFollowerList();
+    renderMyPage(myId);
+    alert('팔로워가 추가되었습니다.');
+};
+
+// 팔로워 삭제 처리
+window.handleRemoveFollower = function(targetId) {
+    if (!confirm('정말로 이 팔로워를 삭제하시겠습니까?')) return;
+
+    const myId = localStorage.getItem('yamyam_session');
+    let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+
+    users[myId].followers = users[myId].followers.filter(id => id !== targetId);
+    localStorage.setItem('yamyam_users', JSON.stringify(users));
+
+    renderFollowerList();
+    renderMyPage(myId);
+};
 
 // 프로필 사진 업로드 처리
 window.handleAvatarUpload = function(event) {
