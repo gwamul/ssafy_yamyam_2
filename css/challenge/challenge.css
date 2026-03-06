@@ -3,12 +3,22 @@
    ========================================================================== */
 
 :root {
-    --accent-color: #6c63ff;
-    --point-blue: #0098ff;
+    --accent-color: #68723D;
+    --point-blue: #BCCA8C;
     --soft-bg: #f8faff;
     --glass-bg: rgba(255, 255, 255, 0.9);
     --text-main: #2d3436;
+
+    --primary-color: #BCCA8C;
+    --primary-hover: #68723D;
+
+    /* bootstrap override */
+    --bs-primary: #BCCA8C;
+    --bs-primary-rgb: 188, 202, 140;
 }
+
+
+
 
 /* 탭 네비게이션: 여유로운 간격 */
 .challenge-tabs {
@@ -83,9 +93,9 @@
 }
 
 .premium-list-item:hover {
-    transform: translateY(-8px); /* 위로 뜨는 입체 효과 */
-    border-color: var(--point-blue) !important;
-    box-shadow: 0 15px 35px rgba(0, 152, 255, 0.12) !important;
+    transform: translateY(-8px);
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 15px 35px rgba(188, 202, 140, 0.15) !important;
 }
 
 /* 기간 원형 배지 */
@@ -119,27 +129,25 @@
     color: #747d8c;
     white-space: nowrap;
 }
-.meta-tag.kcal { background: #fff4e6; color: #fd7e14; }
-
+.meta-tag.kcal { 
+    background: var(--primary-light); 
+    color: var(--primary-hover); 
+}
 /* ⭐️ 도전 시작 버튼 (시인성 강화) */
 .btn-explore-start {
-    background: linear-gradient(135deg, var(--point-blue) 0%, #00d2ff 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, #d4e0b0 100%) !important;
     color: white !important;
     border: none;
     padding: 16px 45px;
     border-radius: 50px;
     font-weight: 800;
-    font-size: 16px;
+    box-shadow: 0 8px 20px rgba(188, 202, 140, 0.3);
     transition: all 0.3s ease;
-    box-shadow: 0 8px 20px rgba(0, 152, 255, 0.25);
-    flex-shrink: 0;
-    white-space: nowrap;
 }
 
 .btn-explore-start:hover {
-    background: linear-gradient(135deg, #0082d9 0%, #00b8e6 100%);
+    background: var(--primary-hover) !important;
     transform: scale(1.08);
-    box-shadow: 0 12px 25px rgba(0, 152, 255, 0.4);
 }
 
 /* --------------------------------------------------------------------------
@@ -242,10 +250,14 @@
     transition: all 0.3s;
 }
 
-.input-box input:focus {
-    border-color: var(--point-blue);
-    box-shadow: 0 0 0 4px rgba(0, 152, 255, 0.1);
-    outline: none;
+.input-box input:focus, 
+.input-box select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 4px rgba(188, 202, 140, 0.15) !important;
+}
+
+.s-value-wrap strong {
+    color: var(--primary-hover) !important;
 }
 
 /* 식단 가이드 입력 영역 (스크롤바 포함) */
@@ -291,22 +303,13 @@
 
 /* 생성 버튼 (포인트 컬러 강조) */
 .btn-create-final {
-    width: 100%;
-    background: linear-gradient(135deg, var(--point-blue), #00d2ff);
-    color: white;
-    border: none;
-    padding: 20px;
-    border-radius: 20px;
-    font-weight: 800;
-    font-size: 1.15rem;
-    box-shadow: 0 10px 25px rgba(0, 152, 255, 0.3);
-    cursor: pointer;
-    transition: all 0.3s;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)) !important;
+    box-shadow: 0 10px 25px rgba(188, 202, 140, 0.3);
 }
 
 .btn-create-final:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(0, 152, 255, 0.4);
+    box-shadow: 0 15px 30px var(--primary-hover);
 }
 .create-card { background: white; border-radius: 30px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
 
@@ -317,7 +320,7 @@
 .input-box input:focus { border-color: var(--point-blue); outline: none; }
 
 .btn-create-final {
-    width: 100%; background: linear-gradient(135deg, var(--point-blue), #00d2ff);
+    width: 100%; background: linear-gradient(135deg, var(--point-blue), var(--primary-color));
     color: white; border: none; padding: 20px; border-radius: 20px; font-weight: 800; font-size: 1.1rem;
 }
 
@@ -355,7 +358,7 @@
 .level-badge-sm {
     font-size: 12px;
     font-weight: 700;
-    color: var(--point-blue);
+    color: var(--primary-hover) !important;
 }
 
 .custom-progress-sm {
@@ -366,8 +369,8 @@
 }
 
 .secondary-item.active {
-    background: #f0f7ff !important;
-    border: 1px solid var(--point-blue) !important;
+    background: var(--primary-light) !important;
+    border: 1px solid var(--primary-color) !important;
     border-left-width: 5px !important;
     border-radius: 12px !important;
 }
@@ -441,7 +444,7 @@
 }
 
 .ritual-item.completed .ritual-check {
-    color: #20c997;
+    color: var(--primary-color);
 }
 
 .ritual-item.completed .ritual-check i::before {
@@ -493,7 +496,7 @@
 
 /* 성공 도장이 찍혔을 때의 상태 */
 .btn-final-stamp.stamped {
-    background: linear-gradient(135deg, #00b894, #00d2d3);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
     border: none;
     color: white;
     box-shadow: 0 10px 20px rgba(0, 184, 148, 0.3);

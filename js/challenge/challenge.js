@@ -449,9 +449,9 @@ function renderExploreChallenges() {
 
     // 난이도별 테마 설정
     const diffConfigs = [
-        { id: 'easy', name: 'Beginner: 가벼운 시작', color: '#00b894', icon: '🌱' },
-        { id: 'medium', name: 'Intermediate: 꾸준한 변화', color: '#fdcb6e', icon: '🔥' },
-        { id: 'hard', name: 'Advanced: 극한의 도전', color: '#d63031', icon: '🏆' }
+        { id: 'easy', name: 'Beginner: 가벼운 시작', color: '#BCCA8C', icon: '🌱' },
+        { id: 'medium', name: 'Intermediate: 꾸준한 변화', color: '#68723D', icon: '🔥' },
+        { id: 'hard', name: 'Advanced: 극한의 도전', color: '#4f572e', icon: '🏆' }
     ];
 
     let html = '';
