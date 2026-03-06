@@ -14,7 +14,7 @@
 
 .user-auth-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1100px; /* 기존 800px에서 확대 */
     padding: 40px 20px;
     margin: 0;
     /* 중앙 정렬을 위해 기존 margin 제거 */
@@ -140,10 +140,10 @@
     flex-direction: column;
     align-items: center;
     background: var(--bg-light);
-    border: 1px solid var(--border-soft);
+    border: 1px solid rgba(0, 0, 0, 0.08); /* 은은한 회색 실선 추가 */
     padding: 10px 18px;
     border-radius: 16px;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 }
 
@@ -191,26 +191,26 @@
 .profile-header-group {
     display: flex;
     align-items: center;
-    gap: 24px;
-    margin-bottom: 40px;
+    gap: 32px; /* 간격 확대 */
+    margin-bottom: 50px;
 }
 
 .profile-avatar-wrapper {
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 120px; /* 80px -> 120px */
+    height: 120px;
 }
 
 .profile-avatar {
-    width: 80px;
-    height: 80px;
+    width: 120px; /* 80px -> 120px */
+    height: 120px;
     background: linear-gradient(135deg, var(--primary-color), #BCCA8C);
-    border-radius: 22px;
+    border-radius: 32px; /* 더 둥글게 */
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 32px;
+    font-size: 48px; /* 폰트 확대 */
     font-weight: 700;
     overflow: hidden;
     /* 이미지가 넘치지 않게 */
@@ -224,13 +224,13 @@
 
 .avatar-edit-btn {
     position: absolute;
-    bottom: -5px;
-    right: -5px;
-    width: 32px;
-    height: 32px;
+    bottom: 0;
+    right: 0;
+    width: 40px; /* 32px -> 40px */
+    height: 40px;
     background: white;
     border: 1px solid var(--border-soft);
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -246,58 +246,61 @@
 }
 
 .edit-icon {
-    font-size: 16px;
+    font-size: 20px;
 }
 
 .profile-title-info h2 {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 36px; /* 28px -> 36px */
+    font-weight: 800;
     margin: 0;
     color: var(--text-main);
-    letter-spacing: -0.5px;
+    letter-spacing: -1px;
 }
 
 .user-id-tag {
     color: var(--text-muted);
-    font-size: 15px;
+    font-size: 18px; /* 15px -> 18px */
+    font-weight: 500;
 }
 
 /* Stats Grid */
 .profile-stats-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
-    margin-bottom: 40px;
+    gap: 24px; /* 간격 확대 */
+    margin-bottom: 50px;
 }
 
 .stat-box {
     background: var(--bg-light);
-    padding: 20px;
-    border-radius: 18px;
+    padding: 28px 20px;
+    border-radius: 24px;
     text-align: center;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.08); /* 은은한 회색 실선 추가 */
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stat-box:hover {
     background: white;
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.08);
+    border-color: var(--primary-color); /* 기존의 강조 효과 유지 */
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 102, 255, 0.08);
 }
 
 .stat-label {
     display: block;
-    font-size: 13px;
+    font-size: 14px; /* 13px -> 14px */
     color: var(--text-muted);
-    margin-bottom: 8px;
-    font-weight: 500;
+    margin-bottom: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .stat-value {
     display: block;
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 28px; /* 22px -> 28px */
+    font-weight: 800;
     color: var(--text-main);
 }
 
@@ -330,9 +333,16 @@
 }
 
 /* Form Styles Override */
+.btn {
+    border-radius: 28px !important; /* 모든 버튼을 아주 둥글게 통일 */
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
 .btn-primary {
     background: var(--primary-color);
-    border-radius: 14px;
+    border-radius: 28px;
     padding: 14px 24px;
     font-weight: 600;
     border: none;
@@ -355,8 +365,8 @@
 
 .form-control {
     border: 1px solid var(--border-soft);
-    border-radius: 12px;
-    padding: 12px 16px;
+    border-radius: 20px;
+    padding: 12px 20px;
     background: var(--bg-light);
     transition: all 0.2s;
 }
@@ -373,25 +383,42 @@
     gap: 8px;
     background: #f1f1f6;
     padding: 6px;
-    border-radius: 14px;
+    border-radius: 24px;
     width: fit-content;
+    position: relative; /* 인디케이터 배치를 위해 relative 추가 */
+    z-index: 0;
+}
+
+.tab-indicator {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    height: calc(100% - 12px);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1; /* 버튼 뒤에 위치 */
 }
 
 .tab-item {
     padding: 10px 24px;
-    border-radius: 10px;
+    border-radius: 20px;
     border: none;
     background: transparent;
     font-size: 14px;
     font-weight: 600;
     color: var(--text-muted);
-    transition: all 0.2s;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
 }
 
 .tab-item.active {
-    background: white;
     color: var(--primary-color);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    background: transparent !important; /* 배경은 인디케이터가 담당 */
+    box-shadow: none !important;
 }
 
 /* Challenge Mini Cards */

@@ -208,15 +208,27 @@ function checkLoginSession() {
     }
 }
 
+// 탭 인디케이터 이동 함수
+function moveTabIndicator(targetEl) {
+    const indicator = document.querySelector('.tab-indicator');
+    if (!indicator || !targetEl) return;
+    
+    indicator.style.width = `${targetEl.offsetWidth}px`;
+    indicator.style.left = `${targetEl.offsetLeft}px`;
+}
+
 // 탭 전환 함수
 window.switchUserTab = function(tabName) {
+    // 이벤트 타겟 확인 (클릭된 버튼)
+    const target = event ? event.currentTarget : document.querySelector(`.tab-item[onclick*="${tabName}"]`);
+    
     // 탭 버튼 상태 변경
     const tabs = document.querySelectorAll('.tab-item');
     tabs.forEach(t => t.classList.remove('active'));
     
-    // 이벤트 타겟이 버튼인 경우 active 클래스 부여
-    if (event && event.target) {
-        event.target.classList.add('active');
+    if (target) {
+        target.classList.add('active');
+        moveTabIndicator(target);
     }
 
     // 탭 내용 전환
@@ -437,6 +449,12 @@ function renderMyPage(targetUserId) {
         if (actionBtns) actionBtns.classList.remove('d-none');
         if (deleteSection) deleteSection.classList.remove('d-none');
     }
+
+    // 탭 인디케이터 초기 위치 설정 (약간의 지연을 주어 렌더링 후 계산 보장)
+    setTimeout(() => {
+        const activeTab = document.querySelector('.tab-item.active');
+        if (activeTab) moveTabIndicator(activeTab);
+    }, 50);
 }
 
 // 팔로워 모달 열기 및 렌더링

@@ -101,7 +101,7 @@ body {
 
 .sidebar-icon:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    color: var(--primary-hover);
 }
 
 .sidebar-icon.active {
@@ -111,6 +111,20 @@ body {
 
 .icon-text {
     display: block;
+}
+
+/* 사이드바 칼로리 퍼센트 배지 커스텀 */
+#side-calc-percent {
+    background-color: var(--primary-color) !important; /* #BCCA8C 적용 */
+    color: #ffffff !important; /* 글자색은 흰색으로 고정 */
+    border-radius: 8px; /* 조금 더 부드러운 사각형 */
+    padding: 5px 10px; /* 여백 조정 */
+    font-weight: 800; /* 글자 두께 강조 */
+}
+
+/* 만약 달성률이 100%를 넘었을 때 강조하고 싶다면? (JS와 연동 필요) */
+#side-calc-percent.goal-reached {
+    background-color: var(--primary-hover) !important; /* #68723D 적용 */
 }
 
 /* ========== 메인 콘텐츠 영역 ========== */
