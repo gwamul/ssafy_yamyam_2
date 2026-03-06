@@ -1,618 +1,460 @@
-// 글로벌 변수
-let dietData = [];
-let foodDatabase = {};
-let currentFilters = {
-    date: '',
-    mealType: ''
-};
+// User 인증 및 정보 관리를 위한 JS
 
-// 초기화
 document.addEventListener('DOMContentLoaded', () => {
-    loadData();
-    setupEventListeners();
-    setupPanelNavigation();
+    checkLoginSession();
+    initAuthForms();
 });
 
-// 패널 네비게이션 설정
-function setupPanelNavigation() {
-    const sidebarIcons = document.querySelectorAll('.sidebar-icon');
-    sidebarIcons.forEach(icon => {
-        icon.addEventListener('click', () => {
-            const panelName = icon.dataset.panel;
-            switchPanel(panelName);
-            
-            // 활성 아이콘 업데이트
-            sidebarIcons.forEach(i => i.classList.remove('active'));
-            icon.classList.add('active');
-            
-            // Secondary Sidebar 업데이트
-            updateSecondaryPanel(panelName);
-        });
+// 섹션 전환 함수 (글로벌 접근 가능하도록)
+window.showAuthForm = function(type) {
+    const sections = ['authChoiceAction', 'loginFormSection', 'registerFormSection', 'myPageSection', 'editProfileSection'];
+    sections.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.classList.add('d-none');
+    });
+
+    if (type === 'login') {
+        document.getElementById('loginFormSection').classList.remove('d-none');
+    } else if (type === 'register') {
+        document.getElementById('registerFormSection').classList.remove('d-none');
+    } else if (type === 'main') {
+        document.getElementById('authChoiceAction').classList.remove('d-none');
+    } else if (type === 'mypage') {
+        document.getElementById('myPageSection').classList.remove('d-none');
+    } else if (type === 'edit') {
+        document.getElementById('editProfileSection').classList.remove('d-none');
+        initEditForm();
+    }
+};
+
+// 인증 폼 초기화
+function initAuthForms() {
+    // 회원가입 폼 제출
+    const regForm = document.getElementById('userRegistrationForm');
+    regForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleRegistration();
+    });
+
+    // 로그인 폼 제출
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleLogin();
+    });
+
+    // 정보 수정 폼 제출
+    const editForm = document.getElementById('editProfileForm');
+    editForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleUpdateProfile();
+    });
+
+    // 로그아웃 버튼
+    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+    // 탈퇴 버튼
+    document.getElementById('deleteAccountBtn').addEventListener('click', handleDeleteAccount);
+
+    // 수정 버튼 클릭 시
+    document.getElementById('editProfileBtn').addEventListener('click', () => {
+        showAuthForm('edit');
     });
 }
 
-// 패널 전환
-function switchPanel(panelName) {
-    const panels = document.querySelectorAll('.content-panel');
-    panels.forEach(panel => panel.classList.remove('active'));
-    
-    const targetPanel = document.getElementById(`${panelName}-panel`);
-    if (targetPanel) {
-        targetPanel.classList.add('active');
+// 회원 탈퇴 처리
+function handleDeleteAccount() {
+    const userId = localStorage.getItem('yamyam_session');
+    if (!userId) return;
+
+    if (confirm('정말로 탈퇴하시겠습니까?\n탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.')) {
+        if (confirm('마지막 확인입니다. 정말로 계정을 삭제하시겠습니까?')) {
+            let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+            
+            // 유저 삭제
+            delete users[userId];
+            
+            localStorage.setItem('yamyam_users', JSON.stringify(users));
+            localStorage.removeItem('yamyam_session');
+            
+            alert('그동안 얌얌을 이용해주셔서 감사합니다. 계정이 삭제되었습니다.');
+            location.reload();
+        }
     }
 }
 
-// Secondary Sidebar 업데이트
-function updateSecondaryPanel(panelName) {
-    const secondarySidebarContent = document.getElementById('secondary-sidebar-content');
+// 정보 수정 폼 초기값 설정
+function initEditForm() {
+    const userId = localStorage.getItem('yamyam_session');
+    const users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+    const user = users[userId];
+
+    if (!user) return;
+
+    document.getElementById('editId').value = userId;
+    document.getElementById('editName').value = user.profile.name;
+    document.getElementById('editHeight').value = user.profile.height;
+    document.getElementById('editWeight').value = user.profile.weight;
+    document.getElementById('editDisease').value = user.profile.disease;
     
-    switch(panelName) {
-        case 'home':
-            renderSecondaryPanelHome();
-            break;
-        case 'diet':
-            renderSecondaryPanelDiet();
-            break;
-        case 'community':
-            renderSecondaryPanelCommunity();
-            break;
-        case 'workout':
-            renderSecondaryPanelWorkout();
-            break;
-        case 'challenge':
-            renderSecondaryPanelChallenge();
-            break;
-        case 'settings':
-            renderSecondaryPanelSettings();
-            break;
-        default:
-            secondarySidebarContent.innerHTML = '<p class="text-muted">정보가 없습니다</p>';
+    if (user.profile.gender === 'male') {
+        document.getElementById('editMale').checked = true;
+    } else {
+        document.getElementById('editFemale').checked = true;
     }
 }
 
-// Secondary Panel - 홈
-function renderSecondaryPanelHome() {
-    const secondarySidebarContent = document.getElementById('secondary-sidebar-content');
+// 정보 수정 처리
+function handleUpdateProfile() {
+    const userId = localStorage.getItem('yamyam_session');
+    const pw = document.getElementById('editPw').value;
+    const name = document.getElementById('editName').value;
+    const gender = document.querySelector('input[name="editGender"]:checked').value;
+    const height = document.getElementById('editHeight').value;
+    const weight = document.getElementById('editWeight').value;
+    const disease = document.getElementById('editDisease').value || '없음';
+
+    let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
     
-    const today = new Date().toISOString().split('T')[0];
-    const todayMeals = dietData.filter(meal => meal.날짜 === today);
-    const totalCalorie = todayMeals.reduce((sum, meal) => {
-        return sum + (meal.음식 || []).reduce((s, f) => s + (parseFloat(f.에너지) || 0), 0);
-    }, 0);
-    
-    secondarySidebarContent.innerHTML = `
-        <div class="secondary-item">
-            <div class="secondary-item-title">오늘 섭취</div>
-            <div class="secondary-item-subtitle">${totalCalorie.toFixed(0)} kcal</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">목표 칼로리</div>
-            <div class="secondary-item-subtitle">2000 kcal</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">식사 횟수</div>
-            <div class="secondary-item-subtitle">${todayMeals.length}끼</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">빠른 메뉴</div>
-            <div class="secondary-item-subtitle">식단 탭으로 이동</div>
-        </div>
-    `;
+    // 프로필 업데이트
+    users[userId].profile = {
+        name, gender, height, weight, disease
+    };
+
+    // 비밀번호 입력 시에만 비밀번호 업데이트
+    if (pw.trim() !== "") {
+        users[userId].pw = pw;
+    }
+
+    localStorage.setItem('yamyam_users', JSON.stringify(users));
+    alert('회원 정보가 수정되었습니다.');
+    renderMyPage(userId);
 }
 
-// Secondary Panel - 식단
-function renderSecondaryPanelDiet() {
-    const secondarySidebarContent = document.getElementById('secondary-sidebar-content');
-    const mealTypes = ['아침', '점심', '저녁', '간식'];
+// 회원가입 처리
+function handleRegistration() {
+    const id = document.getElementById('regId').value;
+    const pw = document.getElementById('regPw').value;
+    const name = document.getElementById('userName').value;
+    const gender = document.querySelector('input[name="gender"]:checked').value;
+    const height = document.getElementById('userHeight').value;
+    const weight = document.getElementById('userWeight').value;
+    const disease = document.getElementById('userDisease').value || '없음';
+
+    // 기존 유저 데이터 확인
+    let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+
+    if (users[id]) {
+        alert('이미 존재하는 아이디입니다.');
+        return;
+    }
+
+    // 신규 유저 생성 (식단은 빈 배열로 시작)
+    users[id] = {
+        pw: pw,
+        profile: {
+            name, gender, height, weight, disease
+        },
+        diets: [] // 초기 식단은 비어있음
+    };
+
+    localStorage.setItem('yamyam_users', JSON.stringify(users));
+    alert('회원가입이 완료되었습니다! 로그인해주세요.');
+    showAuthForm('login');
+}
+
+// 로그인 처리
+function handleLogin() {
+    const id = document.getElementById('loginId').value;
+    const pw = document.getElementById('loginPw').value;
+
+    const users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+
+    if (users[id] && users[id].pw === pw) {
+        // 세션 저장 (간단히 ID만 저장)
+        localStorage.setItem('yamyam_session', id);
+        alert(`${users[id].profile.name}님, 환영합니다!`);
+        renderMyPage(id);
+    } else {
+        alert('아이디 또는 비밀번호가 일치하지 않습니다.');
+    }
+}
+
+// 로그아웃 처리
+function handleLogout() {
+    localStorage.removeItem('yamyam_session');
+    location.reload();
+}
+
+// 로그인 세션 확인
+function checkLoginSession() {
+    const sessionId = localStorage.getItem('yamyam_session');
+    if (sessionId) {
+        renderMyPage(sessionId);
+    } else {
+        showAuthForm('main');
+    }
+}
+
+// 탭 전환 함수
+window.switchUserTab = function(tabName) {
+    // 탭 버튼 상태 변경
+    const tabs = document.querySelectorAll('.tab-item');
+    tabs.forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // 탭 내용 전환
+    const contents = ['profileTabContent', 'challengesTabContent'];
+    contents.forEach(c => document.getElementById(c).classList.add('d-none'));
     
-    const today = new Date().toISOString().split('T')[0];
-    const todayMeals = dietData.filter(meal => meal.날짜 === today);
+    const activeContent = document.getElementById(`${tabName}TabContent`);
+    if (activeContent) activeContent.classList.remove('d-none');
+
+    if (tabName === 'challenges') {
+        renderSubscribedChallenges();
+    }
+};
+
+// 구독 챌린지 렌더링 (더미 데이터)
+function renderSubscribedChallenges() {
+    const listContainer = document.getElementById('subscribedChallengesList');
     
-    let html = '';
-    mealTypes.forEach(mealType => {
-        const mealCount = todayMeals.filter(m => m.식사구분 === mealType).length;
-        const calories = todayMeals
-            .filter(m => m.식사구분 === mealType)
-            .reduce((sum, meal) => sum + (meal.음식 || []).reduce((s, f) => s + (parseFloat(f.에너지) || 0), 0), 0);
-        
-        html += `
-            <div class="secondary-item" data-meal-type="${mealType}">
-                <div class="secondary-item-title">${mealType}</div>
-                <div class="secondary-item-subtitle">${mealCount > 0 ? `${mealCount}가지 · ${calories.toFixed(0)}kcal` : '기록 없음'}</div>
-            </div>
-        `;
-    });
-    
-    secondarySidebarContent.innerHTML = html;
-    
-    // 클릭 이벤트 추가
-    document.querySelectorAll('#secondary-sidebar-content .secondary-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const mealType = item.dataset.mealType;
-            document.getElementById('filterMealType').value = mealType;
-            document.getElementById('filterDate').value = today;
-            applyFilters();
-        });
-    });
-}
+    // 더미 챌린지 데이터
+    const dummyChallenges = [
+        {
+            title: "30일 물 마시기 습관",
+            category: "Habit",
+            progress: 65,
+            daysLeft: 12,
+            icon: "💧",
+            color: "#007aff"
+        },
+        {
+            title: "주 3회 고단백 식단",
+            category: "Diet",
+            progress: 40,
+            daysLeft: 5,
+            icon: "🥩",
+            color: "#ff9500"
+        },
+        {
+            title: "밀가루 끊기 챌린지",
+            category: "Health",
+            progress: 90,
+            daysLeft: 2,
+            icon: "🥖",
+            color: "#ff3b30"
+        }
+    ];
 
-// Secondary Panel - 커뮤니티
-function renderSecondaryPanelCommunity() {
-    const secondarySidebarContent = document.getElementById('secondary-sidebar-content');
-    secondarySidebarContent.innerHTML = `
-        <div class="secondary-item">
-            <div class="secondary-item-title">공개 피드</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">나의 게시물</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">팔로우</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-    `;
-}
-
-// Secondary Panel - 운동
-function renderSecondaryPanelWorkout() {
-    const secondarySidebarContent = document.getElementById('secondary-sidebar-content');
-    secondarySidebarContent.innerHTML = `
-        <div class="secondary-item">
-            <div class="secondary-item-title">오늘의 운동</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">이전 운동</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">AI 코칭</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-    `;
-}
-
-// Secondary Panel - 챌린지
-function renderSecondaryPanelChallenge() {
-    const secondarySidebarContent = document.getElementById('secondary-sidebar-content');
-    secondarySidebarContent.innerHTML = `
-        <div class="secondary-item">
-            <div class="secondary-item-title">진행중</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">완료됨</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">모든 챌린지</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-    `;
-}
-
-// Secondary Panel - 설정
-function renderSecondaryPanelSettings() {
-    const secondarySidebarContent = document.getElementById('secondary-sidebar-content');
-    secondarySidebarContent.innerHTML = `
-        <div class="secondary-item">
-            <div class="secondary-item-title">프로필</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">알림</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-        <div class="secondary-item">
-            <div class="secondary-item-title">개인정보</div>
-            <div class="secondary-item-subtitle">곧 출시</div>
-        </div>
-    `;
-}
-
-// 식단 추가 화면으로 전환
-function switchToAddMeal() {
-    switchPanel('diet');
-    const mealList = document.getElementById('mealList');
-    mealList.innerHTML = `
-        <div class="card" style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h4 style="margin-bottom: 20px; color: #1e1e1e;">새로운 식단 추가</h4>
-            <form id="addMealForm">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">날짜</label>
-                        <input type="date" class="form-control" id="newDate" required>
+    listContainer.innerHTML = dummyChallenges.map(challenge => `
+        <div class="col-md-6 col-lg-4">
+            <div class="challenge-mini-card">
+                <div class="challenge-card-header">
+                    <span class="challenge-icon" style="background: ${challenge.color}15; color: ${challenge.color}">${challenge.icon}</span>
+                    <span class="challenge-category">${challenge.category}</span>
+                </div>
+                <h4 class="challenge-title">${challenge.title}</h4>
+                <div class="challenge-progress-area">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="progress-label">진행률</span>
+                        <span class="progress-value">${challenge.progress}%</span>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label">식사구분</label>
-                        <select class="form-select" id="newMealType" required>
-                            <option value="">선택</option>
-                            <option value="아침">아침</option>
-                            <option value="점심">점심</option>
-                            <option value="저녁">저녁</option>
-                            <option value="간식">간식</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">음식 검색</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="foodSearch" placeholder="음식명 입력" autocomplete="off">
-                            <button class="btn btn-outline-secondary" type="button" id="addFoodBtn">추가</button>
-                        </div>
-                        <div id="foodSuggestions" class="list-group mt-2"></div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${challenge.progress}%; background: ${challenge.color}"></div>
                     </div>
                 </div>
-                <div class="mt-3" id="selectedFoodsDiv"></div>
-                <button type="submit" class="btn btn-primary mt-3" style="width: 100%;">식단 추가</button>
-            </form>
+                <div class="challenge-footer">
+                    <span class="days-left">남은 기간: <strong>${challenge.daysLeft}일</strong></span>
+                </div>
+            </div>
         </div>
-    `;
-    
-    // 이벤트 재설정
-    setupEventListeners();
-    // Secondary panel 업데이트
-    updateSecondaryPanel('diet');
+    `).join('');
 }
 
-// 데이터 로드
-async function loadData() {
+// 마이페이지 렌더링
+function renderMyPage(userId) {
+    const users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+    const user = users[userId];
+    if (!user) return;
+
+    showAuthForm('mypage');
+    
+    const titleEl = document.getElementById('pageTitle');
+    const subtitleEl = document.getElementById('pageSubtitle');
+    
+    titleEl.innerHTML = `
+        <span class="header-eyebrow">Member Profile</span>
+        <h1 class="header-title">${user.profile.name}님의 프로필</h1>
+    `;
+    subtitleEl.innerHTML = "개인 정보 및 건강 지표를 관리하세요.";
+
+    const infoContent = document.getElementById('userInfoContent');
+    infoContent.innerHTML = `
+        <div class="col-12">
+            <div class="profile-main-card">
+                <div class="profile-header-group">
+                    <div class="profile-avatar">${user.profile.name[0]}</div>
+                    <div class="profile-title-info">
+                        <h2>${user.profile.name}</h2>
+                        <span class="user-id-tag">@${userId}</span>
+                    </div>
+                </div>
+                
+                <div class="profile-stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-label">성별</span>
+                        <span class="stat-value">${user.profile.gender === 'male' ? '남성' : '여성'}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">키</span>
+                        <span class="stat-value">${user.profile.height}<small>cm</small></span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">몸무게</span>
+                        <span class="stat-value">${user.profile.weight}<small>kg</small></span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">BMI</span>
+                        <span class="stat-value">${(user.profile.weight / ((user.profile.height/100)**2)).toFixed(1)}</span>
+                    </div>
+                </div>
+
+                <div class="profile-footer-info">
+                    <div class="info-row">
+                        <span class="info-label">보유 질환</span>
+                        <span class="info-value">${user.profile.disease}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">가입일</span>
+                        <span class="info-value">${new Date().toLocaleDateString()}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // renderDiets(userId);
+}
+
+// 식단 정보 렌더링
+function renderDiets(userId) {
+    const users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+    const user = users[userId];
+    const dietDisplay = document.getElementById('userDietDisplay');
+    const testAction = document.getElementById('testDietAction');
+
+    if (user.diets && user.diets.length > 0) {
+        dietDisplay.innerHTML = '<ul class="list-group text-start">' + 
+            user.diets.map(d => `<li class="list-group-item">${d.날짜} - ${d.식사구분}: ${d.음식.map(f => f.식품명).join(', ')}</li>`).join('') + 
+            '</ul>';
+    } else {
+        dietDisplay.innerHTML = '<p class="text-muted py-4">기록된 식단 정보가 없습니다.</p>';
+        
+        // 테스트용 데이터 로드 버튼 추가
+        testAction.innerHTML = '<button class="btn btn-sm btn-light text-secondary" onclick="loadTestData()">테스트 데이터 로드(DEBUG)</button>';
+    }
+}
+
+/**
+ * [테스트용] 식단데이터.json 로드하여 유저에게 할당하는 기능
+ * 유저 피드백에 따라 테스트용 주석 코드로 구현됨
+ */
+window.loadTestData = async function() {
+    const userId = localStorage.getItem('yamyam_session');
+    if (!userId) return;
+
     try {
         const response = await fetch('data/식단데이터.json');
-        dietData = await response.json();
-        console.log('식단 데이터 로드 완료:', dietData);
+        const testData = await response.json();
         
-        await loadFoodDatabase();
-        updateHomeStats();
-        // 초기 secondary panel 설정
-        updateSecondaryPanel('home');
+        // 상위 3개 데이터만 테스트로 추가
+        const sampleDiets = testData.slice(0, 3);
+        
+        let users = JSON.parse(localStorage.getItem('yamyam_users'));
+        users[userId].diets = sampleDiets;
+        
+        localStorage.setItem('yamyam_users', JSON.stringify(users));
+        alert('테스트용 식단 데이터가 로드되었습니다.');
+        renderDiets(userId);
+        
     } catch (error) {
-        console.error('데이터 로드 오류:', error);
+        console.error('테스트 데이터 로드 실패:', error);
     }
+};
+
+
+// 식단데이터.json을 참고하여 수동으로 데이터를 추가하고 싶을 때 사용 가능한 코드 조각
+async function manuallyAddDiet() {
+    const response = await fetch('data/식단데이터.json');
+    const allDiets = await response.json();
+    const selected = allDiets.find(d => d.식단ID === 1);
 }
 
-// 홈 화면 통계 업데이트
-function updateHomeStats() {
-    const today = new Date().toISOString().split('T')[0];
-    const todayMeals = dietData.filter(meal => meal.날짜 === today);
+/**
+ * [API] 식단 데이터 입력
+ * 유저 아이디와 식단 객체를 받아 해당 유저의 데이터베이스(localStorage)에 추가합니다.
+ * @param {string} userId - 데이터를 추가할 유저의 ID
+ * @param {object} dietEntry - 추가할 식단 정보 (날짜, 식사구분, 음식 배열 등 포함)
+ * @returns {boolean} 성공 여부
+ */
+window.apiAddDietData = function(userId, dietEntry) {
+    let users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+    if (!users[userId]) {
+        console.error(`API Error: '${userId}' 유저를 찾을 수 없습니다.`);
+        return false;
+    }
     
-    const totalCalorie = todayMeals.reduce((sum, meal) => {
-        return sum + (meal.음식 || []).reduce((s, f) => s + (parseFloat(f.에너지) || 0), 0);
-    }, 0);
+    if (!users[userId].diets) users[userId].diets = [];
     
-    const totalProtein = todayMeals.reduce((sum, meal) => {
-        return sum + (meal.음식 || []).reduce((s, f) => s + (parseFloat(f.단백질) || 0), 0);
-    }, 0);
+    // 고유 식단 ID 생성 로직 (현재 유저의 식단 중 최대 ID + 1)
+    const maxId = users[userId].diets.reduce((max, d) => Math.max(max, d.식단ID || 0), 0);
+    const newDiet = {
+        ...dietEntry,
+        식단ID: maxId + 1,
+        createdAt: new Date().toISOString()
+    };
     
-    document.getElementById('todayCalorie').textContent = totalCalorie.toFixed(0);
-    document.getElementById('todayProtein').textContent = totalProtein.toFixed(1);
-}
+    users[userId].diets.push(newDiet);
+    localStorage.setItem('yamyam_users', JSON.stringify(users));
+    console.log(`API Success: '${userId}' 유저에게 새로운 식단이 추가되었습니다.`);
+    return true;
+};
+/*
+  사용 예시 (apiAddDietData):
+  const newDiet = {
+      날짜: "2024-05-20",
+      식사구분: "점심",
+      음식: [
+          { 식품명: "닭가슴살 샐러드", 에너지: 350, 단백질: 30, 탄수화물: 10, 지방: 5 }
+      ]
+  };
+  apiAddDietData('ssafy123', newDiet);
+*/
 
-// CSV 음식 데이터베이스 로드
-async function loadFoodDatabase() {
-    try {
-        const response = await fetch('data/음식DB.csv');
-        const csv = await response.text();
-        const lines = csv.split('\n');
-        
-        for (let i = 1; i < lines.length; i++) {
-            if (lines[i].trim() === '') continue;
-            
-            try {
-                const values = parseCSVLine(lines[i]);
-                if (values.length >= 13) {
-                    const foodItem = {
-                        식품코드: values[0],
-                        식품명: values[1],
-                        식품대분류명: values[2],
-                        영양성분함량기준량: values[3],
-                        에너지: parseFloat(values[4]) || 0,
-                        단백질: parseFloat(values[5]) || 0,
-                        지방: parseFloat(values[6]) || 0,
-                        탄수화물: parseFloat(values[7]) || 0,
-                        당류: parseFloat(values[8]) || 0,
-                        나트륨: parseFloat(values[9]) || 0,
-                        포화지방산: parseFloat(values[10]) || 0,
-                        트랜스지방산: parseFloat(values[11]) || 0,
-                        식품중량: values[12]
-                    };
-                    foodDatabase[foodItem.식품명] = foodItem;
-                }
-            } catch (e) {
-                // 파싱 오류 무시
-            }
-        }
-        console.log('음식 데이터베이스 로드 완료:', Object.keys(foodDatabase).length, '개 항목');
-    } catch (error) {
-        console.error('CSV 로드 오류:', error);
-    }
-}
-
-// CSV 라인 파싱
-function parseCSVLine(line) {
-    const result = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        const nextChar = line[i + 1];
-        
-        if (char === '"') {
-            if (inQuotes && nextChar === '"') {
-                current += '"';
-                i++;
-            } else {
-                inQuotes = !inQuotes;
-            }
-        } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
-            current = '';
-        } else {
-            current += char;
-        }
+/**
+ * [API] 유저 식단 정보 내보내기 (날짜순 정렬)
+ * 특정 유저의 모든 식단 데이터를 가져와 날짜순(오름차순)으로 정렬하여 반환합니다.
+ * @param {string} userId - 데이터를 조회할 유저의 ID
+ * @returns {Array} 날짜순으로 정렬된 식단 객체 배열
+ */
+window.apiGetSortedDiets = function(userId) {
+    const users = JSON.parse(localStorage.getItem('yamyam_users') || '{}');
+    if (!users[userId] || !users[userId].diets) {
+        console.warn(`API Warning: '${userId}' 유저의 식단 데이터가 없습니다.`);
+        return [];
     }
     
-    result.push(current.trim());
-    return result;
-}
-
-// 이벤트 리스너 설정
-function setupEventListeners() {
-    if (document.getElementById('filterBtn')) {
-        document.getElementById('filterBtn').addEventListener('click', applyFilters);
-    }
-    if (document.getElementById('addMealForm')) {
-        document.getElementById('addMealForm').addEventListener('submit', handleAddMeal);
-    }
-    if (document.getElementById('foodSearch')) {
-        document.getElementById('foodSearch').addEventListener('input', handleFoodSearch);
-    }
-    if (document.getElementById('addFoodBtn')) {
-        document.getElementById('addFoodBtn').addEventListener('click', addSelectedFood);
-    }
-}
-
-// 필터 적용
-function applyFilters() {
-    currentFilters.date = document.getElementById('filterDate').value;
-    currentFilters.mealType = document.getElementById('filterMealType').value;
-    
-    const filtered = dietData.filter(meal => {
-        const dateMatch = !currentFilters.date || meal.날짜 === currentFilters.date;
-        const typeMatch = !currentFilters.mealType || meal.식사구분 === currentFilters.mealType;
-        return dateMatch && typeMatch;
+    // 원본 데이터를 복사하여 날짜순 정렬 (오름차순: 과거 -> 미래)
+    const sortedDiets = [...users[userId].diets].sort((a, b) => {
+        return new Date(a.날짜) - new Date(b.날짜);
     });
     
-    renderMealList(filtered);
-}
-
-// 식단 목록 렌더링
-function renderMealList(meals) {
-    const container = document.getElementById('mealList');
-    
-    if (meals.length === 0) {
-        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">조건에 맞는 식단이 없습니다.</div>';
-        return;
-    }
-    
-    container.innerHTML = meals.map(meal => createMealCard(meal)).join('');
-    
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const mealId = parseInt(e.target.dataset.mealId);
-            deleteMeal(mealId);
-        });
-    });
-}
-
-// 식단 카드 생성
-function createMealCard(meal) {
-    const getMealTypeClass = (type) => {
-        const typeMap = {
-            '아침': 'breakfast',
-            '점심': 'lunch',
-            '저녁': 'dinner',
-            '간식': 'snack'
-        };
-        return typeMap[type] || '';
-    };
-    
-    const foods = meal.음식 || [];
-    const totals = calculateTotals(foods);
-    
-    let foodsHtml = foods.map(food => `
-        <div class="food-item">
-            <div class="food-name">${food.식품명}</div>
-            <div class="nutrition-info">
-                <div class="nutrition-item">
-                    <div class="label">에너지</div>
-                    <div class="value">${Number(food.에너지).toFixed(1)}</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="label">탄수화물</div>
-                    <div class="value">${Number(food.탄수화물).toFixed(1)}g</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="label">단백질</div>
-                    <div class="value">${Number(food.단백질).toFixed(1)}g</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="label">지방</div>
-                    <div class="value">${Number(food.지방).toFixed(1)}g</div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-    
-    return `
-        <div class="meal-card">
-            <div class="meal-header">
-                <div>
-                    <div class="meal-date">${meal.날짜} · ${meal.식사구분}</div>
-                    <span class="meal-type ${getMealTypeClass(meal.식사구분)}">${meal.식사구분}</span>
-                </div>
-                <button class="btn-delete" data-meal-id="${meal.식단ID}" title="삭제">×</button>
-            </div>
-            <div class="foods-list">
-                ${foodsHtml}
-            </div>
-            <div class="nutrition-totals">
-                <h6>📊 영양 요약</h6>
-                <div class="nutrition-grid">
-                    <div class="nutrition-item-total">
-                        <div class="label">에너지</div>
-                        <div class="value">${totals.에너지.toFixed(0)}</div>
-                    </div>
-                    <div class="nutrition-item-total">
-                        <div class="label">탄수화물</div>
-                        <div class="value">${totals.탄수화물.toFixed(1)}</div>
-                    </div>
-                    <div class="nutrition-item-total">
-                        <div class="label">단백질</div>
-                        <div class="value">${totals.단백질.toFixed(1)}</div>
-                    </div>
-                    <div class="nutrition-item-total">
-                        <div class="label">지방</div>
-                        <div class="value">${totals.지방.toFixed(1)}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// 영양정보 총합 계산
-function calculateTotals(foods) {
-    return {
-        에너지: foods.reduce((sum, food) => sum + (parseFloat(food.에너지) || 0), 0),
-        탄수화물: foods.reduce((sum, food) => sum + (parseFloat(food.탄수화물) || 0), 0),
-        단백질: foods.reduce((sum, food) => sum + (parseFloat(food.단백질) || 0), 0),
-        지방: foods.reduce((sum, food) => sum + (parseFloat(food.지방) || 0), 0)
-    };
-}
-
-// 식단 삭제
-function deleteMeal(mealId) {
-    if (confirm('이 식단을 삭제하시겠습니까?')) {
-        dietData = dietData.filter(meal => meal.식단ID !== mealId);
-        updateHomeStats();
-        updateSecondaryPanel('diet');
-        applyFilters();
-    }
-}
-
-// 음식 검색 결과 표시
-function handleFoodSearch(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    const suggestionsDiv = document.getElementById('foodSuggestions');
-    
-    if (searchTerm.length < 2) {
-        suggestionsDiv.innerHTML = '';
-        return;
-    }
-    
-    const matches = Object.keys(foodDatabase)
-        .filter(name => name.toLowerCase().includes(searchTerm))
-        .slice(0, 10);
-    
-    suggestionsDiv.innerHTML = matches.map(name => `
-        <div class="list-group-item" onclick="selectFoodItem('${name}')">${name}</div>
-    `).join('');
-}
-
-// 음식 아이템 선택
-let selectedFoods = [];
-
-function selectFoodItem(foodName) {
-    if (!selectedFoods.find(f => f.식품명 === foodName)) {
-        const foodItem = foodDatabase[foodName];
-        if (foodItem) {
-            selectedFoods.push(foodItem);
-            displaySelectedFoods();
-        }
-    }
-    document.getElementById('foodSearch').value = '';
-    document.getElementById('foodSuggestions').innerHTML = '';
-}
-
-// 선택된 음식 추가 버튼
-function addSelectedFood() {
-    const searchTerm = document.getElementById('foodSearch').value.toLowerCase();
-    const matches = Object.keys(foodDatabase)
-        .filter(name => name.toLowerCase().includes(searchTerm));
-    
-    if (matches.length > 0) {
-        selectFoodItem(matches[0]);
-    }
-}
-
-// 선택된 음식 목록 표시
-function displaySelectedFoods() {
-    const div = document.getElementById('selectedFoodsDiv');
-    
-    if (selectedFoods.length === 0) {
-        div.innerHTML = '';
-        return;
-    }
-    
-    div.innerHTML = `
-        <div class="selected-foods">
-            <h6 style="margin-bottom: 10px;">선택된 음식:</h6>
-            ${selectedFoods.map((food, idx) => `
-                <span class="selected-food-tag">
-                    ${food.식품명}
-                    <span class="remove" onclick="removeSelectedFood(${idx})">×</span>
-                </span>
-            `).join('')}
-        </div>
-    `;
-}
-
-// 선택된 음식 제거
-function removeSelectedFood(idx) {
-    selectedFoods.splice(idx, 1);
-    displaySelectedFoods();
-}
-
-// 식단 추가 처리
-function handleAddMeal(e) {
-    e.preventDefault();
-    
-    const date = document.getElementById('newDate').value;
-    const mealType = document.getElementById('newMealType').value;
-    
-    if (!date || !mealType || selectedFoods.length === 0) {
-        alert('모든 필드를 입력하고 음식을 선택해주세요.');
-        return;
-    }
-    
-    const newMealId = Math.max(...dietData.map(m => m.식단ID), 0) + 1;
-    
-    const newMeal = {
-        식단ID: newMealId,
-        날짜: date,
-        식사구분: mealType,
-        음식: selectedFoods.map(food => ({
-            식품코드: food.식품코드,
-            식품명: food.식품명,
-            에너지: food.에너지,
-            탄수화물: food.탄수화물,
-            단백질: food.단백질,
-            지방: food.지방,
-            식품중량: food.식품중량
-        }))
-    };
-    
-    dietData.push(newMeal);
-    
-    document.getElementById('addMealForm').reset();
-    selectedFoods = [];
-    document.getElementById('selectedFoodsDiv').innerHTML = '';
-    
-    updateHomeStats();
-    updateSecondaryPanel('diet');
-    applyFilters();
-    alert('식단이 추가되었습니다!');
-}
+    console.log(`API Success: '${userId}' 유저의 식단 데이터를 날짜순으로 정렬하여 내보냅니다.`);
+    return sortedDiets;
+};
+/*
+  사용 예시 (apiGetSortedDiets):
+  const myDiets = apiGetSortedDiets('ssafy123');
+  console.log(myDiets); // 날짜별로 정렬된 식단 배열 출력
+*/

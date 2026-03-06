@@ -1,58 +1,214 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>User</title>
-
-<link rel="stylesheet" href="css/style.css">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <meta charset="utf-8">
+    <title>회원 관리 - Yamyam</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/user/user.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-
 <body>
+    <div class="app-container">
+        <!-- 사이드바 -->
+        <nav class="icon-sidebar">
+            <div class="sidebar-header"></div>
+            <div class="sidebar-icons">
+                <a href="index.html" class="sidebar-icon">🏠</a>
+                <a href="user.html" class="sidebar-icon active">👥</a>
+                <a href="food.html" class="sidebar-icon">🍴</a>
+                <a href="challenge.html" class="sidebar-icon">🎯</a>
+            </div>
+        </nav>
 
-<div class="app-container">
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1 id="pageTitle">회원 서비스</h1>
+                <p class="subtitle" id="pageSubtitle">얌얌 서비스 이용을 위해 로그인하거나 가입해주세요.</p>
+            </header>
 
-<nav class="icon-sidebar">
-    <div class="sidebar-header">
-        
+            <div class="container user-auth-container">
+                
+                <!-- 1. 초기 선택 화면 (로그인/가입 버튼) -->
+                <div id="authChoiceAction" class="text-center p-5 bg-white shadow-sm rounded-4">
+                    <h2 class="mb-4">반갑습니다!</h2>
+                    <div class="d-grid gap-3 col-6 mx-auto">
+                        <button class="btn btn-primary btn-lg py-3" onclick="showAuthForm('login')">로그인</button>
+                        <button class="btn btn-outline-primary btn-lg py-3" onclick="showAuthForm('register')">회원가입</button>
+                    </div>
+                </div>
+
+                <!-- 2. 로그인 폼 -->
+                <div id="loginFormSection" class="auth-section d-none">
+                    <div class="card shadow-sm border-0 rounded-4 p-4 mx-auto" style="max-width: 450px;">
+                        <h3 class="text-center mb-4">로그인</h3>
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="loginId" class="form-label fw-bold">아이디</label>
+                                <input type="text" class="form-control" id="loginId" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="loginPw" class="form-label fw-bold">비밀번호</label>
+                                <input type="password" class="form-control" id="loginPw" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">로그인하기</button>
+                            <button type="button" class="btn btn-link w-100 text-decoration-none" onclick="showAuthForm('register')">계정이 없으신가요? 가입하기</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 3. 회원가입 폼 -->
+                <div id="registerFormSection" class="auth-section d-none">
+                    <div class="card shadow-sm border-0 rounded-4 p-4 mx-auto" style="max-width: 700px;">
+                        <h3 class="text-center mb-4">회원가입</h3>
+                        <form id="userRegistrationForm">
+                            <div class="row g-3">
+                                <!-- 계정 정보 -->
+                                <div class="col-md-6">
+                                    <label for="regId" class="form-label fw-bold">아이디</label>
+                                    <input type="text" class="form-control" id="regId" placeholder="사용할 아이디" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="regPw" class="form-label fw-bold">비밀번호</label>
+                                    <input type="password" class="form-control" id="regPw" placeholder="비밀번호" required>
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <!-- 프로필 정보 -->
+                                <div class="col-md-6">
+                                    <label for="userName" class="form-label fw-bold">이름</label>
+                                    <input type="text" class="form-control" id="userName" placeholder="이름" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold d-block">성별</label>
+                                    <div class="form-check form-check-inline mt-2">
+                                        <input class="form-check-input" type="radio" name="gender" id="genderMale" value="male" checked>
+                                        <label class="form-check-label" for="genderMale">남성</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mt-2">
+                                        <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="female">
+                                        <label class="form-check-label" for="genderFemale">여성</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="userHeight" class="form-label fw-bold">키 (cm)</label>
+                                    <input type="number" class="form-control" id="userHeight" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="userWeight" class="form-label fw-bold">몸무게 (kg)</label>
+                                    <input type="number" class="form-control" id="userWeight" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="userDisease" class="form-label fw-bold">보유 질환</label>
+                                    <input type="text" class="form-control" id="userDisease" placeholder="없으면 '없음' 입력">
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold">가입 완료</button>
+                                    <button type="button" class="btn btn-link w-100 mt-2 text-decoration-none" onclick="showAuthForm('login')">이미 계정이 있나요? 로그인</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+<!-- 4. 마이페이지 (로그인 성공 후) -->
+<div id="myPageSection" class="auth-section d-none">
+    <!-- 마이페이지 탭 메뉴 -->
+    <div class="user-tab-nav mb-4">
+        <button class="tab-item active" onclick="switchUserTab('profile')">내 프로필</button>
+        <button class="tab-item" onclick="switchUserTab('challenges')">구독 챌린지</button>
     </div>
 
-    <div class="sidebar-icons">
+    <!-- 프로필 탭 내용 -->
+    <div id="profileTabContent" class="tab-pane active">
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0" style="font-size: 1.25rem; font-weight: 700;">기본 정보</h3>
+                <div class="d-flex gap-2">
+                    <button id="editProfileBtn" class="btn btn-outline-primary btn-sm px-3">정보 수정</button>
+                    <button id="logoutBtn" class="btn btn-outline-danger btn-sm">로그아웃</button>
+                </div>
+            </div>
+            <div id="userInfoContent" class="row g-3">
+                <!-- JS에서 렌더링 -->
+            </div>
 
-        <a href="index.html" class="sidebar-icon" >🍽️</a>
-
-        <a href="user.html" class="sidebar-icon">
-            👥
-        </a>
-
-        <a href="food.html" class="sidebar-icon">
-            🍴
-        </a>
-
-        <a href="challenge.html" class="sidebar-icon">
-            🎯
-        </a>
-
+            <div class="mt-5 pt-4 border-top">
+                <div class="d-flex justify-content-between align-items-center opacity-75">
+                    <div>
+                        <h5 class="text-danger mb-1" style="font-size: 0.95rem; font-weight: 700;">계정 삭제</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.85rem;">탈퇴 시 모든 데이터가 영구 삭제됩니다.</p>
+                    </div>
+                    <button id="deleteAccountBtn" class="btn btn-link text-danger text-decoration-none fw-bold" style="font-size: 0.85rem;">회원 탈퇴</button>
+                </div>
+            </div>
+        </div>
     </div>
-</nav>
 
-<main class="main-content">
+    <!-- 챌린지 탭 내용 -->
+    <div id="challengesTabContent" class="tab-pane d-none">
+        <div id="subscribedChallengesList" class="row g-4">
+            <!-- JS에서 더미 데이터 렌더링 -->
+        </div>
+    </div>
+</div><!-- 5. 회원 정보 수정 폼 -->
+<div id="editProfileSection" class="auth-section d-none">
+    <div class="card shadow-sm border-0 rounded-4 p-4 mx-auto" style="max-width: 700px;">
+        <h3 class="text-center mb-4">정보 수정</h3>
+        <form id="editProfileForm">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">아이디 (변경 불가)</label>
+                    <input type="text" class="form-control bg-light" id="editId" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="editPw" class="form-label fw-bold">새 비밀번호</label>
+                    <input type="password" class="form-control" id="editPw" placeholder="변경할 경우에만 입력">
+                </div>
 
-<header class="content-header">
-<h1>회원 관리</h1>
-<p class="subtitle">회원 정보 관리 페이지</p>
-</header>
+                <hr class="my-4">
 
-<div class="container">
-
-<p>회원 정보 영역</p>
-
+                <div class="col-md-6">
+                    <label for="editName" class="form-label fw-bold">이름</label>
+                    <input type="text" class="form-control" id="editName" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold d-block">성별</label>
+                    <div class="form-check form-check-inline mt-2">
+                        <input class="form-check-input" type="radio" name="editGender" id="editMale" value="male">
+                        <label class="form-check-label" for="editMale">남성</label>
+                    </div>
+                    <div class="form-check form-check-inline mt-2">
+                        <input class="form-check-input" type="radio" name="editGender" id="editFemale" value="female">
+                        <label class="form-check-label" for="editFemale">여성</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="editHeight" class="form-label fw-bold">키 (cm)</label>
+                    <input type="number" class="form-control" id="editHeight" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="editWeight" class="form-label fw-bold">몸무게 (kg)</label>
+                    <input type="number" class="form-control" id="editWeight" required>
+                </div>
+                <div class="col-12">
+                    <label for="editDisease" class="form-label fw-bold">보유 질환</label>
+                    <input type="text" class="form-control" id="editDisease">
+                </div>
+                <div class="col-12 mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1 py-3 fw-bold">저장하기</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" onclick="showAuthForm('mypage')">취소</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
-</main>
+            </div>
+        </main>
+    </div>
 
-</div>
-
+    <script src="js/user/diet_data.js"></script>
+    <script src="js/user/user.js"></script>
 </body>
 </html>
