@@ -218,5 +218,30 @@
 
     <script src="js/user/diet_data.js"></script>
     <script src="js/user/user.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- 팔로워 모달 -->
+    <div class="modal fade" id="followerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">팔로워 관리</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- 팔로워 추가 입력 -->
+                    <div class="input-group mb-4">
+                        <input type="text" id="newFollowerId" class="form-control form-control-lg" placeholder="추가할 아이디 입력">
+                        <button class="btn btn-primary px-4" type="button" onclick="handleAddFollower()">추가</button>
+                    </div>
+                    
+                    <h6 class="fw-bold mb-3 text-muted" style="font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase;">내 팔로워 목록</h6>
+                    <div id="followerList" class="list-group list-group-flush border-top">
+                        <!-- JS에서 렌더링 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

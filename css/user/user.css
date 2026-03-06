@@ -81,11 +81,105 @@
 
 /* Profile Main Card */
 .profile-main-card {
+    position: relative;
     background: #ffffff;
     border-radius: 24px;
     padding: 40px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-soft);
+}
+
+/* 타인 프로필 강조 스타일 */
+.profile-main-card.others-profile {
+    border: 2px solid #5e5ce6; /* 보라색 테두리 */
+    box-shadow: 0 12px 40px rgba(94, 92, 230, 0.12);
+}
+
+.others-badge {
+    position: absolute;
+    top: -12px;
+    left: 40px;
+    background: #5e5ce6;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.btn-back-to-my {
+    background: none;
+    border: none;
+    color: #5e5ce6;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-back-to-my:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+}
+
+.profile-top-right {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+}
+
+.follower-manage-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-light);
+    border: 1px solid var(--border-soft);
+    padding: 10px 18px;
+    border-radius: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.follower-manage-btn:hover {
+    background: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.08);
+}
+
+.follower-manage-btn .btn-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.follower-manage-btn .btn-count {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+/* Follower List Styles */
+.follower-avatar, .follower-avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.follower-avatar-placeholder {
+    background: linear-gradient(135deg, var(--primary-color), #5e5ce6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
 }
 
 .profile-header-group {
