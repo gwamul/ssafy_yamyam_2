@@ -52,7 +52,7 @@
 }
 
 .food-item-card:hover {
-    border-color: #E7AE3B;
+    border-color: var(--primary-color);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
@@ -98,15 +98,15 @@
 }
 
 .meal-block:hover {
-    border-color: #E7AE3B;
+    border-color:  var(--primary-color);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     transform: translateY(-2px);
 }
 
 .meal-block.active {
     background-color: #FFFBF0;
-    border-color: #E7AE3B;
-    border-left: 4px solid #E7AE3B;
+    border-color: var(--primary-color);
+    border-left: 4px solid  var(--primary-color);
 }
 
 .meal-block-header {
@@ -142,4 +142,8 @@
 /* 패널 컨테이너 애니메이션 */
 #viewDietPanel {
     transition: opacity 0.3s ease;
+}
+
+#happy {
+    color: var(--primary-hover)
 }

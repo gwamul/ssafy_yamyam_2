@@ -425,10 +425,10 @@ function renderDietSidebar() {
 
         // 배지 색상 결정
         let badgeClass = "bg-secondary";
-        if (diet["식사구분"] === "아침") badgeClass = "bg-warning text-dark";
-        else if (diet["식사구분"] === "점심") badgeClass = "bg-info text-dark";
+        if (diet["식사구분"] === "아침") badgeClass = "bg-primary text-dark";
+        else if (diet["식사구분"] === "점심") badgeClass = "bg-primary text-dark";
         else if (diet["식사구분"] === "저녁") badgeClass = "bg-primary text-white";
-        else if (diet["식사구분"] === "간식") badgeClass = "bg-danger text-white";
+        else if (diet["식사구분"] === "간식") badgeClass = "bg-primary text-white";
 
         const foodNamesStr = foodNames.join(", ");
         const dummyImgUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop";
@@ -488,10 +488,10 @@ function viewDiet(id) {
             <img src="${imgUrl}" style="width:64px; height:64px; object-fit:cover; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.1)" alt="${food['식품명']}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop'">
             <div>
                 <div class="fw-bold text-dark mb-1">${food["식품명"]} <span class="badge bg-light text-dark fw-normal ms-1">${food["식품중량"]}</span></div>
-                <div class="small text-muted">탄 ${food["탄수화물"]}g | 단 ${food["단백질"]}g | 지 ${food["지방"]}g</div>
+                <div class="small text-muted">탄수화물 ${food["탄수화물"]}g | 단백질 ${food["단백질"]}g | 지방 ${food["지방"]}g</div>
             </div>
             <div class="text-end">
-                <div class="fs-5 fw-bold text-success">${food["에너지"]}</div>
+                <div class="fs-5 fw-bold">${food["에너지"]}</div>
                 <div class="small text-muted">kcal</div>
             </div>
         </li>
@@ -507,7 +507,7 @@ function viewDiet(id) {
                 </div>
                 <div>
                     <button class="btn btn-sm btn-outline-secondary me-1 px-3" onclick="editDiet(${diet["식단ID"]})">수정</button>
-                    <button class="btn btn-sm btn-outline-danger px-3" onclick="deleteDiet(${diet["식단ID"]})">삭제</button>
+                    <button class="btn btn-sm px-3" onclick="deleteDiet(${diet["식단ID"]})">삭제</button>
                 </div>
             </div>
             
@@ -517,7 +517,7 @@ function viewDiet(id) {
                     <div class="row">
                         <div class="col-3">
                             <div class="small text-muted mb-1">총 열량</div>
-                            <div class="fs-4 fw-bold text-primary">${Math.round(totalEnergy)} <span class="fs-6 fw-normal text-dark">kcal</span></div>
+                            <div class="fs-4 fw-bold text-primary"><span id="happy">${Math.round(totalEnergy)}</span><span class="fs-6 fw-normal text-dark">kcal</span></div>
                         </div>
                         <div class="col-3">
                             <div class="small text-muted mb-1">탄수화물</div>
@@ -534,7 +534,7 @@ function viewDiet(id) {
                     </div>
                 </div>
 
-                <h6 class="fw-bold mb-3 text-dark">🍽️ 포함된 음식 (<span class="text-primary">${diet["음식"].length}</span>)</h6>
+                <h6 class="fw-bold mb-3 text-dark">음식 (<span class="text-primary">${diet["음식"].length}</span>)</h6>
                 <ul class="list-group list-group-flush border rounded flex-grow-1 overflow-auto">
                     ${foodHTML}
                 </ul>
