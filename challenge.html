@@ -43,8 +43,90 @@
 
         <!-- 좌측 둘째 패널 (챌린지 정보) -->
         <aside class="secondary-sidebar">
-            <div id="secondary-sidebar-content">
-                <!-- 동적으로 렌더링됨 -->
+            <div id="secondary-sidebar-content" class="p-2">
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-1" id="side-today-date">2026.03.06</h5>
+                    <p class="small text-muted">오늘의 도전을 완료해 보세요! 🔥</p>
+                </div>
+
+                <div class="glass-card p-3 mb-4 border rounded-4 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small fw-bold">오늘의 칼로리</span>
+                        <span class="badge bg-primary" id="side-calc-percent">0%</span>
+                    </div>
+                    <div class="progress" style="height: 10px; border-radius: 5px;">
+                        <div id="side-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div class="mt-2 d-flex justify-content-between">
+                        <small class="text-muted"><span id="side-current-kcal">0</span> kcal</small>
+                        <small class="fw-bold text-dark">/ <span id="side-target-kcal">2000</span> kcal</small>
+                    </div>
+                </div>
+
+                <div class="section-label mb-2">THIS WEEK</div>
+                <div class="d-flex justify-content-between mb-4 text-center" id="mini-calendar">
+                    </div>
+
+                <div class="mission-container">
+                    <div class="ritual-item mb-2" onclick="toggleMission(this)">
+                        <div class="ritual-icon">💧</div>
+                        <div class="ritual-info">
+                            <span class="ritual-title">물 2L 마시기</span>
+                            <small class="text-muted">수분 보충은 기본!</small>
+                        </div>
+                        <div class="ritual-check"><i class="bi bi-circle"></i></div>
+                    </div>
+
+                    <div class="ritual-item mb-2" onclick="toggleMission(this)">
+                        <div class="ritual-icon">👟</div>
+                        <div class="ritual-info">
+                            <span class="ritual-title">만보 걷기</span>
+                            <small class="text-muted">활동량 채우기</small>
+                        </div>
+                        <div class="ritual-check"><i class="bi bi-circle"></i></div>
+                    </div>
+
+                    <div class="ritual-item mb-3" onclick="toggleMission(this)">
+                        <div class="ritual-icon">💊</div>
+                        <div class="ritual-info">
+                            <span class="ritual-title">영양제 챙기기</span>
+                            <small class="text-muted">잊지 마세요!</small>
+                        </div>
+                        <div class="ritual-check"><i class="bi bi-circle"></i></div>
+                    </div>
+                </div>
+
+                <div id="final-mission-reward" class="mt-3 d-none">
+                    <div class="badge-reward p-2 text-center rounded-4 mb-2" style="background: #fff4e6; color: #fd7e14; font-size: 0.8rem; font-weight: 700;">
+                        🎁 오늘의 리추얼 올클리어! +15xp
+                    </div>
+                </div>
+
+                <div class="section-label mb-3">CHALLENGE PROGRESS</div>
+                <div class="glass-card p-3 mb-4 border rounded-4 bg-white shadow-sm">
+                    <div class="d-flex justify-content-between align-items-end mb-2">
+                        <div>
+                            <span class="fs-4 fw-900 text-primary" id="side-progress-percent">65</span><small class="fw-bold">%</small>
+                            <p class="small text-muted m-0">전체 여정 진행 중</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge rounded-pill bg-light text-primary border" id="side-progress-days">9 / 14 Day</span>
+                        </div>
+                    </div>
+                    <div class="progress-container-custom">
+                        <div class="progress-bar-main" id="main-challenge-bar" style="width: 65%"></div>
+                    </div>
+                </div>
+
+                <div class="final-check-section mt-4">
+                    <button class="btn-final-stamp" id="btn-daily-stamp" onclick="stampTodaySuccess()">
+                        <div class="stamp-content">
+                            <i class="bi bi-patch-check-fill fs-3 mb-1"></i>
+                            <span>오늘의 성공 도장 찍기</span>
+                        </div>
+                    </button>
+                    <p class="text-center small text-muted mt-2">도장을 찍으면 오늘의 기록이 완성됩니다!</p>
+                </div>
             </div>
         </aside>
 

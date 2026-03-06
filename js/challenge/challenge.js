@@ -650,3 +650,149 @@ function toggleMission(challengeId, missionId) {
 function calculateMealKcal(meals) {
     return meals.reduce((sum, m) => sum + (m.kcal || 0), 0);
 }
+
+
+// 사이드바 정보 업데이트 함수
+function updateSidebarInfo() {
+    // 1. 날짜 설정
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+    if(document.getElementById('side-today-date')) {
+        document.getElementById('side-today-date').textContent = dateStr;
+    }
+
+    // 2. 미니 캘린더 생성 (현재 요일 기준 7일)
+    const calendarContainer = document.getElementById('mini-calendar');
+    if (calendarContainer) {
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        let calHtml = '';
+        for (let i = -3; i <= 3; i++) {
+            const d = new Date();
+            d.setDate(now.getDate() + i);
+            const isToday = i === 0 ? 'today' : '';
+            calHtml += `
+                <div class="calendar-day ${isToday}">
+                    <div class="small opacity-75">${days[d.getDay()]}</div>
+                    <div class="fw-bold">${d.getDate()}</div>
+                    <div class="dot"></div>
+                </div>
+            `;
+        }
+        calendarContainer.innerHTML = calHtml;
+    }
+
+    // 3. 칼로리 그래프 업데이트 (기존 calculator 데이터 활용)
+    const currentKcal = parseInt(document.getElementById('averageCalories')?.textContent.replace(/,/g, '')) || 0;
+    const targetKcal = parseInt(document.getElementById('targetCalories')?.value) || 2000;
+    
+    if(document.getElementById('side-current-kcal')) {
+        document.getElementById('side-current-kcal').textContent = currentKcal;
+        document.getElementById('side-target-kcal').textContent = targetKcal;
+        
+        const rate = Math.min(Math.round((currentKcal / targetKcal) * 100), 100);
+        document.getElementById('side-progress-bar').style.width = rate + '%';
+        document.getElementById('side-calc-percent').textContent = rate + '%';
+    }
+}
+
+// 미션 완료 버튼 이벤트
+document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'btn-mission-complete') {
+        e.target.classList.replace('btn-primary', 'btn-success');
+        e.target.innerHTML = '<i class="bi bi-patch-check-fill me-2"></i> 오늘 달성 완료!';
+        document.getElementById('mission-status-text').textContent = "참 잘했어요! 포인트 +10xp";
+        
+        // 여기에 로컬 스토리지 저장 로직을 추가하여 캘린더에 점(dot) 표시를 유지할 수 있습니다.
+    }
+});
+
+// 페이지 로드 시 및 입력 시마다 업데이트
+document.addEventListener('DOMContentLoaded', updateSidebarInfo);
+// 챌린지 입력 값 변경 시 사이드바 그래프도 갱신되도록 리스너 연결
+document.addEventListener('input', updateSidebarInfo);
+
+function toggleMission(element) {
+    // 1. 완료 상태 토글
+    element.classList.toggle('completed');
+    
+    // 2. 사운드나 햅틱 효과 대신 가벼운 애니메이션
+    if (element.classList.contains('completed')) {
+        element.style.transform = "scale(0.98)";
+        setTimeout(() => element.style.transform = "scale(1)", 100);
+    }
+
+    // 3. 올클리어 체크 로직
+    checkAllMissions();
+}
+
+function checkAllMissions() {
+    const total = document.querySelectorAll('.ritual-item').length;
+    const completed = document.querySelectorAll('.ritual-item.completed').length;
+    const rewardDiv = document.getElementById('final-mission-reward');
+    const calendarToday = document.querySelector('.calendar-day.today .dot');
+
+    // 캘린더 연동: 하나라도 성공하면 오늘 날짜 아래 점(dot) 표시
+    if (completed > 0 && calendarToday) {
+        calendarToday.style.background = "#20c997";
+        calendarToday.style.opacity = "1";
+    } else if (calendarToday) {
+        calendarToday.style.opacity = "0";
+    }
+
+    // 올클리어 시 보너스 영역 노출
+    if (total === completed && total > 0) {
+        rewardDiv.classList.remove('d-none');
+        // 여기서 실제 유저의 포인트/경험치 로직을 호출할 수 있습니다.
+    } else {
+        rewardDiv.classList.add('d-none');
+    }
+}
+
+
+function stampTodaySuccess() {
+    const btn = document.getElementById('btn-daily-stamp');
+    
+    // 이미 찍혔다면 중복 클릭 방지 (원하면 토글로 변경 가능)
+    if (btn.classList.contains('stamped')) return;
+
+    // 1. 버튼 상태 변경
+    btn.classList.add('stamped');
+    btn.innerHTML = `
+        <div class="stamp-content">
+            <i class="bi bi-check-all fs-1 mb-1"></i>
+            <span>2026.03.06 성공!</span>
+        </div>
+    `;
+
+    // 2. 캘린더 연동 (오늘 날짜 배경을 성공 색상으로 변경)
+    const todayCircle = document.querySelector('.calendar-day.today');
+    if (todayCircle) {
+        todayCircle.style.background = "#00b894";
+        todayCircle.innerHTML += '<i class="bi bi-check-circle-fill" style="position:absolute; top:-5px; right:-5px; color:#fff; font-size:10px;"></i>';
+    }
+
+    // 3. 축하 효과 (간단한 알림)
+    alert('🎉 축하합니다! 오늘의 건강 도장이 찍혔습니다.');
+    
+    // 4. (선택사항) 진행도 바를 1단계 상승시키는 로직 호출 가능
+    updateTotalProgress();
+}
+
+function updateTotalProgress() {
+    // 실제 데이터와 연동 시: (현재일수 / 전체일수) * 100
+    const currentProgress = 65; // 예시 데이터
+    const progressBar = document.getElementById('main-challenge-bar');
+    const progressText = document.getElementById('side-progress-percent');
+    
+    if (progressBar) {
+        progressBar.style.width = currentProgress + '%';
+        progressText.innerText = currentProgress;
+    }
+}
+
+// 초기 로드 시 실행
+document.addEventListener('DOMContentLoaded', () => {
+    updateTotalProgress();
+});
+
+

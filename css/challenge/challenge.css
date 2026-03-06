@@ -320,3 +320,194 @@
     width: 100%; background: linear-gradient(135deg, var(--point-blue), #00d2ff);
     color: white; border: none; padding: 20px; border-radius: 20px; font-weight: 800; font-size: 1.1rem;
 }
+
+
+
+
+/* 세컨더리 사이드바 전용 스타일 */
+.secondary-sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid #f0f0f0 !important;
+    padding: 25px 20px !important;
+    width : 400px !important;
+}
+
+.section-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #b2bec3;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.char-circle-sm {
+    width: 60px;
+    height: 60px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.level-badge-sm {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--point-blue);
+}
+
+.custom-progress-sm {
+    height: 4px;
+    background: #f1f3f5;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.secondary-item.active {
+    background: #f0f7ff !important;
+    border: 1px solid var(--point-blue) !important;
+    border-left-width: 5px !important;
+    border-radius: 12px !important;
+}
+
+.secondary-item-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+/* 미니 캘린더 스타일 */
+.calendar-day {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: 10px;
+    font-size: 12px;
+}
+.calendar-day.today {
+    background: var(--point-blue);
+    color: white;
+    font-weight: bold;
+}
+.calendar-day.success .dot {
+    width: 6px;
+    height: 6px;
+    background: #20c997;
+    border-radius: 50%;
+    margin: 4px auto 0;
+}
+
+/* 프로그레스 바 커스텀 */
+#side-progress-bar {
+    background-color: var(--point-blue);
+    transition: width 0.5s ease-in-out;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+
+
+.ritual-item {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #edf2f7;
+    border-radius: 16px;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ritual-item:hover {
+    transform: translateX(5px);
+    border-color: var(--point-blue);
+    background: #f0f7ff;
+}
+
+/* 완료 상태 스타일 */
+.ritual-item.completed {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    opacity: 0.7;
+}
+
+.ritual-item.completed .ritual-title {
+    text-decoration: line-through;
+    color: #a0aec0;
+}
+
+.ritual-item.completed .ritual-check {
+    color: #20c997;
+}
+
+.ritual-item.completed .ritual-check i::before {
+    content: "\f26b"; /* bootstrap-icons check-circle-fill */
+}
+
+/* 내부 요소 */
+.ritual-icon { font-size: 1.2rem; margin-right: 12px; }
+.ritual-info { flex: 1; display: flex; flex-direction: column; }
+.ritual-title { font-size: 0.9rem; font-weight: 700; color: #2d3748; }
+.ritual-check { font-size: 1.1rem; color: #cbd5e0; transition: 0.2s; }  
+
+
+
+/* 챌린지 진행도 막대 그래프 */
+.progress-container-custom {
+    height: 12px;
+    background: #f1f5f9;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-main {
+    height: 100%;
+    background: linear-gradient(90deg, #0098ff, #00d2ff);
+    box-shadow: 0 2px 10px rgba(0, 152, 255, 0.3);
+    transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 감성적인 도장 버튼 */
+.btn-final-stamp {
+    width: 100%;
+    background: #ffffff;
+    border: 2px dashed #cbd5e0;
+    border-radius: 24px;
+    padding: 25px;
+    color: #a0aec0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-final-stamp:hover {
+    border-color: var(--point-blue);
+    background: #f0f9ff;
+    color: var(--point-blue);
+    transform: translateY(-2px);
+}
+
+/* 성공 도장이 찍혔을 때의 상태 */
+.btn-final-stamp.stamped {
+    background: linear-gradient(135deg, #00b894, #00d2d3);
+    border: none;
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 184, 148, 0.3);
+    animation: stamp-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes stamp-pop {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.stamp-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: 800;
+}
