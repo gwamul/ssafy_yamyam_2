@@ -143,3 +143,12 @@
 #viewDietPanel {
     transition: opacity 0.3s ease;
 }
+
+/* 모달 애니메이션 빠르게 (Bootstrap 기본 300ms → 150ms) */
+.modal.fade .modal-dialog {
+    transition: transform 0.15s ease-out;
+}
+
+.modal.fade {
+    transition: opacity 0.15s linear;
+}
