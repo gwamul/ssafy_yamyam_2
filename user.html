@@ -22,11 +22,6 @@
 
         <!-- 메인 콘텐츠 -->
         <main class="main-content">
-            <header class="content-header">
-                <h1 id="pageTitle">회원 서비스</h1>
-                <p class="subtitle" id="pageSubtitle">얌얌 서비스 이용을 위해 로그인하거나 가입해주세요.</p>
-            </header>
-
             <div class="container user-auth-container">
                 
                 <!-- 1. 초기 선택 화면 (로그인/가입 버튼) -->
@@ -113,6 +108,11 @@
                 </div>
 <!-- 4. 마이페이지 (로그인 성공 후) -->
 <div id="myPageSection" class="auth-section d-none">
+    <header class="content-header">
+        <div id="pageTitle"></div>
+        <p class="subtitle" id="pageSubtitle"></p>
+    </header>
+
     <!-- 마이페이지 탭 메뉴 -->
     <div class="user-tab-nav mb-4">
         <button class="tab-item active" onclick="switchUserTab('profile')">내 프로필</button>

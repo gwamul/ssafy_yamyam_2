@@ -9,10 +9,21 @@
     --border-soft: #f2f2f7;
 }
 
+/* Main Content Centering */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center; /* 수직 중앙 정렬 */
+    align-items: center;     /* 수평 중앙 정렬 */
+    background-color: var(--bg-light);
+}
+
 .user-auth-container {
+    width: 100%;
     max-width: 800px;
-    margin: 40px auto;
-    padding: 0 20px;
+    padding: 40px 20px;
+    margin: 0; /* 중앙 정렬을 위해 기존 margin 제거 */
 }
 
 /* Header Styles */

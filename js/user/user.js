@@ -283,11 +283,15 @@ function renderMyPage(userId) {
     const titleEl = document.getElementById('pageTitle');
     const subtitleEl = document.getElementById('pageSubtitle');
     
-    titleEl.innerHTML = `
-        <span class="header-eyebrow">Member Profile</span>
-        <h1 class="header-title">${user.profile.name}님의 프로필</h1>
-    `;
-    subtitleEl.innerHTML = "개인 정보 및 건강 지표를 관리하세요.";
+    if (titleEl) {
+        titleEl.innerHTML = `
+            <span class="header-eyebrow">Member Profile</span>
+            <h1 class="header-title">${user.profile.name}님의 프로필</h1>
+        `;
+    }
+    if (subtitleEl) {
+        subtitleEl.innerHTML = "개인 정보 및 건강 지표를 관리하세요.";
+    }
 
     const infoContent = document.getElementById('userInfoContent');
     infoContent.innerHTML = `
