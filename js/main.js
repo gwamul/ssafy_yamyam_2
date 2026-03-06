@@ -265,8 +265,6 @@ async function loadData() {
         
         await loadFoodDatabase();
         updateHomeStats();
-        // 초기 secondary panel 설정
-        updateSecondaryPanel('home');
     } catch (error) {
         console.error('데이터 로드 오류:', error);
     }
