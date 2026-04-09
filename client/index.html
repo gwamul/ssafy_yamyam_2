@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>YamYam - 헬스 케어 플랫폼</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── Transition splash overlay ── */
+        #splash-overlay {
+            position: fixed; inset: 0;
+            background: linear-gradient(145deg, #3d5220 0%, #2c3d17 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+        #splash-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .splash-logo-img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 32px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+            animation: splashBounce 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+            transform: scale(0.6);
+            opacity: 0;
+        }
+        .splash-logo-img.show {
+            animation: splashBounce 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+        @keyframes splashBounce {
+            from { transform: scale(0.5); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+        .splash-text {
+            font-family: 'Gowun Batang', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #BCCA8C;
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease 0.25s;
+        }
+        .splash-text.show { opacity: 1; transform: translateY(0); }
+        .splash-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.55);
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: all 0.4s ease 0.4s;
+        }
+        .splash-sub.show { opacity: 1; }
+        .splash-dots {
+            display: flex; gap: 7px; margin-top: 8px;
+            opacity: 0; transition: opacity 0.3s ease 0.55s;
+        }
+        .splash-dots.show { opacity: 1; }
+        .splash-dots span {
+            width: 7px; height: 7px;
+            background: rgba(188,202,140,0.55);
+            border-radius: 50%;
+            animation: sdot 1.2s ease-in-out infinite;
+        }
+        .splash-dots span:nth-child(2) { animation-delay: 0.18s; }
+        .splash-dots span:nth-child(3) { animation-delay: 0.36s; }
+        @keyframes sdot {
+            0%,60%,100% { transform: scale(0.7); opacity: 0.4; }
+            30%          { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* ── Hero Pills ── */
+        .bottom-pills {
+            position: absolute;
+            bottom: 44px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 12px;
+            z-index: 3;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .pill {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 100px;
+            padding: 10px 22px;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex; align-items: center; gap: 8px;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            font-family: 'Nunito', sans-serif;
+        }
+        .pill:hover { background: rgba(255,255,255,0.22); transform: translateY(-2px); }
+        .pill i { font-size: 13px; color: #BCCA8C; }
+
+        /* Hero tagline */
+        .tagline {
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #D8E4A8;
+            margin-bottom: 18px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        /* Staggered hero reveal */
+        .hero-text-center > * {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: heroFade 0.7s ease forwards;
+        }
+        .hero-text-center .tagline    { animation-delay: 0.2s; }
+        .hero-text-center .brand-logo { animation-delay: 0.4s; }
+        .hero-text-center .main-copy  { animation-delay: 0.6s; }
+        .hero-text-center .btn-start  { animation-delay: 0.8s; }
+        @keyframes heroFade {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<!-- Transition splash -->
+<div id="splash-overlay">
+    <img src="./image/yumyum.jpg" alt="얌얌" class="splash-logo-img" id="splashImg">
+    <div class="splash-text" id="splashText">YamYam</div>
+    <div class="splash-sub" id="splashSub">건강한 식단 관리</div>
+    <div class="splash-dots" id="splashDots">
+        <span></span><span></span><span></span>
+    </div>
+</div>
+
+<div class="app-container">
+    <nav class="icon-sidebar">
+        <a href="index.html" class="nav-logo">YamYam<span class="nav-logo-dot"></span></a>
+        <div class="sidebar-icons">
+            <a href="user.html" class="sidebar-icon" data-tooltip="마이페이지">
+                <i class="fa-regular fa-user"></i>
+                <span class="nav-active-dot"></span>
+            </a>
+            <a href="food.html" class="sidebar-icon" data-tooltip="식단 관리">
+                <i class="fa-solid fa-bowl-food"></i>
+                <span class="nav-active-dot"></span>
+            </a>
+            <a href="challenge.html" class="sidebar-icon" data-tooltip="챌린지">
+                <i class="fa-solid fa-arrow-up-right-dots"></i>
+                <span class="nav-active-dot"></span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="main-content video-layout">
+        <div class="video-background">
+            <div class="overlay"></div>
+            <video autoplay muted loop playsinline class="bg-video">
+                <source src="./image/background.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="hero-text-center">
+            <p class="tagline">건강한 식단 관리</p>
+            <h1 class="brand-logo">YamYam</h1>
+            <p class="main-copy">당신의 식단을 관리해드릴게요</p>
+            <button class="btn-start" id="btnStart">시작하기</button>
+        </div>
+
+        <div class="bottom-pills">
+            <div class="pill" onclick="window.location.href='food.html'">
+                <i class="fa-solid fa-bowl-food"></i> 식단 기록
+            </div>
+            <div class="pill" onclick="window.location.href='challenge.html'">
+                <i class="fa-solid fa-arrow-up-right-dots"></i> 챌린지
+            </div>
+            <div class="pill" onclick="window.location.href='user.html'">
+                <i class="fa-regular fa-user"></i> 마이페이지
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+document.getElementById('btnStart').addEventListener('click', function () {
+    const overlay = document.getElementById('splash-overlay');
+    const img     = document.getElementById('splashImg');
+    const txt     = document.getElementById('splashText');
+    const sub     = document.getElementById('splashSub');
+    const dots    = document.getElementById('splashDots');
+
+    // 1. show overlay
+    overlay.classList.add('show');
+
+    // 2. stagger inner elements
+    requestAnimationFrame(() => {
+        img.classList.add('show');
+        setTimeout(() => txt.classList.add('show'),   180);
+        setTimeout(() => sub.classList.add('show'),   320);
+        setTimeout(() => dots.classList.add('show'),  480);
+    });
+
+    // 3. navigate after logo is visible
+    setTimeout(() => {
+        window.location.href = 'food.html';
+    }, 1600);
+});
+</script>
+
+<script src="js/chatbot.js"></script>
+</body>
+</html>
