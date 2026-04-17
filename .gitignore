@@ -1,0 +1,4 @@
+# 데이터베이스 및 대용량 데이터 제외
+servers/chroma_data/
+*.bin
+*.sqlite3.vscode

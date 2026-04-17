@@ -1,0 +1,865 @@
+let dietList = [];
+let foodDB = [];
+let currentFoods = [];
+let editId = null;
+let selectedDate = new Date(); // 현재 선택된 날짜 (기본 오늘)
+
+// -----------------------------
+// 음식 더미 이미지 목록 & 랜덤 선택
+// -----------------------------
+const DUMMY_FOOD_IMAGES = [
+  "./image/food/cow_bulgogi.jpg",
+  "./image/food/delux_pizza.jpg",
+  "./image/food/friedegg_ham.jpg",
+  "./image/food/ham_egg_sand.jpg",
+  "./image/food/iced_americano.jpg",
+  "./image/food/margherita_pizza.webp",
+  "./image/food/pizza.jpg",
+  "./image/food/salad.jpg",
+  "./image/food/sweet_potato_latte.png",
+];
+
+function getFoodImgUrl() {
+  return DUMMY_FOOD_IMAGES[
+    Math.floor(Math.random() * DUMMY_FOOD_IMAGES.length)
+  ];
+}
+
+// -----------------------------
+// 더미 데이터 생성 함수
+// -----------------------------
+function generateDummyData() {
+  const todayStr = selectedDate.toISOString().split("T")[0];
+  return [
+    {
+      식단ID: 10001,
+      날짜: todayStr,
+      식사구분: "아침",
+      음식: [
+        {
+          식품코드: "TEST1",
+          식품명: "불고기 덮밥",
+          에너지: 600,
+          탄수화물: 80,
+          단백질: 20,
+          지방: 15,
+          식품중량: "400g",
+        },
+      ],
+    },
+    {
+      식단ID: 10002,
+      날짜: todayStr,
+      식사구분: "점심",
+      음식: [
+        {
+          식품코드: "TEST2",
+          식품명: "김치 찌개",
+          에너지: 500,
+          탄수화물: 60,
+          단백질: 15,
+          지방: 10,
+          식품중량: "350g",
+        },
+        {
+          식품코드: "TEST3",
+          식품명: "공기밥",
+          에너지: 300,
+          탄수화물: 65,
+          단백질: 5,
+          지방: 1,
+          식품중량: "200g",
+        },
+      ],
+    },
+    {
+      식단ID: 10003,
+      날짜: todayStr,
+      식사구분: "저녁",
+      음식: [
+        {
+          식품코드: "TEST4",
+          식품명: "된장 찌개",
+          에너지: 400,
+          탄수화물: 50,
+          단백질: 15,
+          지방: 8,
+          식품중량: "300g",
+        },
+      ],
+    },
+  ];
+}
+
+// -----------------------------
+// 초기 실행
+// -----------------------------
+window.onload = async function () {
+  // 1. 기존 식단 데이터 로딩 (JSON)
+  try {
+    const resJSON = await fetch("./data/식단데이터.json"); // 경로 주의
+    if (resJSON.ok) {
+      dietList = await resJSON.json();
+    }
+  } catch (e) {
+    console.error("식단데이터 로드 실패", e);
+  }
+
+  // 오늘 날짜 데이터가 없으면 더미 데이터 삽입
+  const todayStr = selectedDate.toISOString().split("T")[0];
+  if (!dietList.some((d) => d["날짜"] === todayStr)) {
+    dietList.push(...generateDummyData());
+  }
+
+  // 2. 전체 음식 DB 로딩 (CSV)
+  try {
+    const resCSV = await fetch("./data/음식DB.csv");
+    if (resCSV.ok) {
+      const csvText = await resCSV.text();
+      parseFoodCSV(csvText); // foodDB 배열에 저장
+      calculateDBStats();
+    }
+  } catch (e) {
+    console.error("음식DB 로드 실패", e);
+  }
+
+  // 날짜 기본값 설정 (오늘)
+  const dateInput = document.getElementById("currentDateDisplay");
+  dateInput.valueAsDate = selectedDate;
+
+  // 사이드바 렌더링
+  renderDietSidebar();
+
+  // 이벤트 리스너 등록
+  dateInput.addEventListener("change", function (e) {
+    selectedDate = e.target.valueAsDate || new Date();
+    renderDietSidebar();
+  });
+
+  // 어제 / 내일 이동 버튼
+  document.getElementById("btnPrevDay").addEventListener("click", () => {
+    selectedDate.setDate(selectedDate.getDate() - 1);
+    dateInput.valueAsDate = selectedDate;
+    dateInput.dispatchEvent(new Event("change"));
+  });
+
+  document.getElementById("btnNextDay").addEventListener("click", () => {
+    selectedDate.setDate(selectedDate.getDate() + 1);
+    dateInput.valueAsDate = selectedDate;
+    dateInput.dispatchEvent(new Event("change"));
+  });
+
+  document
+    .getElementById("btnFoodSearch")
+    .addEventListener("click", searchFood);
+  document
+    .getElementById("foodSearch")
+    .addEventListener("keypress", function (e) {
+      if (e.key === "Enter") searchFood();
+    });
+  document.getElementById("btnSaveDiet").addEventListener("click", saveDiet);
+
+  // 음식 추가하기 버튼 (모달 열기)
+
+  document
+    .getElementById("btnAddNewMeal")
+    .addEventListener("click", function () {
+      editId = null;
+      document.getElementById("addDietModalLabel").innerText =
+        "새 식단 기록하기";
+      document.getElementById("btnSaveDiet").innerText = "이 식단 기록하기";
+      currentFoods = [];
+      renderSelectedFoods();
+
+      const modal = bootstrap.Modal.getOrCreateInstance(
+        document.getElementById("addDietModal"),
+      );
+      modal.show();
+
+      setTimeout(() => {
+        document.getElementById("foodSearch").focus();
+      }, 500);
+    });
+
+  document.querySelectorAll(".mode-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      currentMode = this.dataset.mode;
+
+      // 버튼 active 처리
+      document
+        .querySelectorAll(".mode-btn")
+        .forEach((b) => b.classList.remove("active"));
+      this.classList.add("active");
+
+      // 검색 결과 즉시 갱신
+      const keyword = document.getElementById("foodSearch").value.trim();
+      if (keyword) searchFood();
+    });
+  });
+};
+
+// -----------------------------
+// CSV 파싱
+// -----------------------------
+function parseFoodCSV(csvText) {
+  const lines = csvText.split("\n");
+  if (lines.length < 2) return;
+
+  // 헤더 파싱 (식품코드,식품명,식품대분류명,영양성분함량기준량,에너지(kcal),단백질(g),지방(g),탄수화물(g),당류(g),나트륨(mg),포화지방산(g),트랜스지방산(g),식품중량)
+  // CSV 파일에 있을 수 있는 \uFEFF (BOM) 제거
+  const headerLine = lines[0].replace(/^\uFEFF/, "");
+  const headers = headerLine.split(",").map((h) => h.trim());
+
+  foodDB = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue; // 빈 줄 건너뛰기
+    // 따옴표로 묶인 CSV 처리 (간단 버전)
+    const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+    let obj = {};
+    for (let j = 0; j < headers.length; j++) {
+      obj[headers[j]] = currentline[j]
+        ? currentline[j].replace(/^"|"$/g, "").trim()
+        : "";
+    }
+
+    // 요구사항 형태에 맞춰 필드 매핑
+    foodDB.push({
+      식품코드: obj["식품코드"],
+      식품명: obj["식품명"] || "",
+      에너지: parseFloat(obj["에너지(kcal)"] || 0),
+      탄수화물: parseFloat(obj["탄수화물(g)"] || 0),
+      단백질: parseFloat(obj["단백질(g)"] || 0),
+      지방: parseFloat(obj["지방(g)"] || 0),
+      식품중량: obj["식품중량"] || obj["영양성분함량기준량"] || "100g",
+    });
+  }
+  console.log(`로드된 음식 수: ${foodDB.length}`);
+}
+
+// -----------------------------
+// 음식 검색
+// -----------------------------
+// function searchFood() {
+//     const keyword = document.getElementById("foodSearch").value.trim();
+//     if (!keyword) return;
+
+//     // 키워드가 포함된 항목 필터링 (최대 50개까지만 렌더링하여 성능 저하 방지)
+//     const result = foodDB.filter(food => food.식품명.includes(keyword)).slice(0, 50);
+
+//     const list = document.getElementById("foodResult");
+//     list.innerHTML = "";
+
+//     if (result.length === 0) {
+//         list.innerHTML = `<li class="list-group-item text-center text-muted">검색 결과가 없습니다.</li>`;
+//         return;
+//     }
+
+//     result.forEach(food => {
+//         const foodStr = encodeURIComponent(JSON.stringify(food));
+//         const imgUrl = getFoodImgUrl(food.식품명);
+//         list.innerHTML += `
+//         <li class="list-group-item food-item-card align-items-center">
+//             <img src="${imgUrl}" class="food-item-img" alt="${food.식품명}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop'">
+//             <div class="food-item-content">
+//                 <div class="food-title">${food.식품명}</div>
+//                 <div class="food-meta">${food.에너지}kcal | 탄 ${food.탄수화물}g | 단 ${food.단백질}g | 지 ${food.지방}g</div>
+//                 <button class="btn btn-sm btn-outline-success w-100 mt-1" onclick="addFood('${foodStr}')">추가</button>
+//             </div>
+//         </li>`;
+//     });
+// }
+// 1. 가중치 프리셋 (나트륨은 mg이므로 다른 성분보다 가중치를 1/1000 수준으로 낮게 책정하거나 계산 시 보정)
+
+// 전체 DB의 통계치를 저장할 객체
+// 로드된 전체 음식 배열
+let dbStats = {}; // 각 영양소의 최댓값/최솟값 저장
+let currentMode = "DIET";
+
+const dietPresets = {
+  // 비중(Weight) 설정: 숫자가 클수록 해당 성분이 점수에 큰 영향을 미침
+  DIET: { 에너지: 10, 단백질: 15, 지방: 8, 탄수화물: 5, 당류: 20, 나트륨: 5 },
+  BULK: { 에너지: 8, 단백질: 20, 지방: 5, 탄수화물: 15, 당류: 2, 나트륨: 5 },
+  KETO: { 에너지: 5, 단백질: 10, 지방: 20, 탄수화물: 20, 당류: 20, 나트륨: 2 },
+  HEALTH: { 에너지: 5, 단백질: 10, 지방: 5, 탄수화물: 5, 당류: 15, 나트륨: 20 },
+};
+function calculateDBStats() {
+  const keys = ["에너지", "단백질", "지방", "탄수화물", "당류", "나트륨"];
+
+  // 초기화
+  keys.forEach((key) => {
+    dbStats[key] = { min: Infinity, max: -Infinity };
+  });
+
+  // 전체 DB 순회하며 최댓값, 최솟값 도출
+  foodDB.forEach((food) => {
+    keys.forEach((key) => {
+      const val = parseFloat(food[key]) || 0;
+      if (val < dbStats[key].min) dbStats[key].min = val;
+      if (val > dbStats[key].max) dbStats[key].max = val;
+    });
+  });
+
+  console.log("통계 계산 완료:", dbStats);
+}
+function calculateFoodScore(foodItem, mode, index) {
+  const weights = dietPresets[mode];
+  const keys = ["에너지", "단백질", "지방", "탄수화물", "당류", "나트륨"];
+
+  let totalScore = 0;
+  let weightSum = 0;
+
+  keys.forEach((key) => {
+    const val = parseFloat(foodItem[key]) || 0;
+    const min = dbStats[key]?.min ?? 0;
+    const max = dbStats[key]?.max ?? 1;
+    const w = weights[key];
+
+    let normalized = max === min ? 0.5 : (val - min) / (max - min);
+
+    if (key !== "단백질") {
+      normalized = 1 - normalized;
+    }
+
+    totalScore += normalized * w;
+    weightSum += w;
+  });
+
+  let finalScore = (totalScore / weightSum) * 100;
+
+  // -----------------------------
+  // ⭐ 추가: 음식 "장르" 기반 보정
+  // -----------------------------
+  const name = (foodItem.식품명 || "").toLowerCase();
+
+  const categoryBonus = {
+    // 건강식
+    healthy: ["샐러드", "야채", "채소", "과일", "닭가슴살", "요거트"],
+    // 고칼로리
+    highCal: ["피자", "버거", "튀김", "치킨", "라면", "돈까스"],
+    // 단백질
+    protein: ["닭", "소고기", "돼지", "계란", "두부", "연어"],
+    // 탄수화물
+    carb: ["밥", "빵", "면", "국수", "떡"],
+  };
+
+  let bonus = 0;
+
+  function includesAny(arr) {
+    return arr.some((k) => name.includes(k));
+  }
+
+  if (mode === "DIET") {
+    if (includesAny(categoryBonus.healthy)) bonus += 15;
+    if (includesAny(categoryBonus.highCal)) bonus -= 20;
+    if (includesAny(categoryBonus.carb)) bonus -= 5;
+  }
+
+  if (mode === "BULK") {
+    if (includesAny(categoryBonus.protein)) bonus += 15;
+    if (includesAny(categoryBonus.carb)) bonus += 10;
+  }
+
+  if (mode === "KETO") {
+    if (includesAny(categoryBonus.carb)) bonus -= 25;
+    if (includesAny(categoryBonus.protein)) bonus += 10;
+  }
+
+  if (mode === "HEALTH") {
+    if (includesAny(categoryBonus.healthy)) bonus += 10;
+    if (includesAny(categoryBonus.highCal)) bonus -= 10;
+  }
+
+  finalScore += bonus;
+
+  // 동점 방지
+  finalScore -= index * 0.00001;
+
+  return Math.min(100, Math.max(0, finalScore));
+}
+function searchFood() {
+  const keyword = document
+    .getElementById("foodSearch")
+    .value.trim()
+    .toLowerCase();
+  const list = document.getElementById("foodResult");
+  if (!keyword) return;
+
+  // 1. 키워드 필터링
+  const filtered = foodDB.filter((food) =>
+    food.식품명.toLowerCase().includes(keyword),
+  );
+
+  // 2. 점수 매기기 (상대 평가 알고리즘 적용)
+  const scoredResult = filtered.map((food, idx) => ({
+    ...food,
+    calculatedScore: calculateFoodScore(food, currentMode, idx),
+  }));
+
+  // 3. 점수 내림차순 정렬
+  scoredResult.sort((a, b) => b.calculatedScore - a.calculatedScore);
+
+  // 4. 렌더링
+  list.innerHTML = "";
+  if (scoredResult.length === 0) {
+    list.innerHTML = `<li class="list-group-item text-center text-muted">검색 결과가 없습니다.</li>`;
+    return;
+  }
+
+  scoredResult.slice(0, 50).forEach((food, index) => {
+    const foodStr = encodeURIComponent(JSON.stringify(food));
+    const imgUrl = getFoodImgUrl(food.식품명); // 기존 이미지 함수 사용
+
+    // 1, 2, 3등 강조 스타일
+    const isTop3 = index < 3;
+    const rankStyle = isTop3
+      ? "background-color: #fff9db; border: 2px solid #fcc419;"
+      : "";
+    const badgeHTML = isTop3
+      ? `<span class="badge bg-warning text-dark">🥇 Top ${index + 1}</span>`
+      : `<span class="badge bg-secondary">Score: ${Math.floor(food.calculatedScore)}</span>`;
+
+    list.innerHTML += `
+        <li class="list-group-item food-item-card d-flex align-items-center" style="${rankStyle} padding: 10px; margin-bottom: 5px; border-radius: 8px;">
+            <img src="${imgUrl}" class="food-item-img" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 15px;" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop'">
+            <div class="food-item-content" style="flex: 1;">
+                <div class="d-flex justify-content-between">
+                    <div class="food-title" style="font-weight: bold;">${food.식품명}</div>
+                    ${badgeHTML}
+                </div>
+                <div class="food-meta" style="font-size: 0.85rem; color: #666;">
+                    ${food.에너지}kcal | 탄 ${food.탄수화물}g | 단 ${food.단백질}g | 지 ${food.지방}g
+                </div>
+                <button class="btn btn-sm btn-outline-success w-100 mt-2" onclick="addFood('${foodStr}')">추가</button>
+            </div>
+        </li>`;
+  });
+}
+
+// -----------------------------
+// 음식 추가 (Staging Area)
+// -----------------------------
+function addFood(foodStr) {
+  const food = JSON.parse(decodeURIComponent(foodStr));
+  currentFoods.push(food);
+  renderSelectedFoods();
+}
+
+// -----------------------------
+// 선택 음식 렌더링 (Staging Area)
+// -----------------------------
+function renderSelectedFoods() {
+  const list = document.getElementById("selectedFoods");
+  const nutInfo = document.getElementById("stagingNutrition");
+
+  if (currentFoods.length === 0) {
+    list.innerHTML = `<li class="list-group-item text-center text-muted py-4 shadow-sm my-2 rounded">선택된 음식이 없습니다. 좌측에서 추가해주세요.</li>`;
+    nutInfo.classList.add("d-none");
+    return;
+  }
+
+  list.innerHTML = "";
+
+  let tEn = 0,
+    tCarb = 0,
+    tPro = 0,
+    tFat = 0;
+
+  currentFoods.forEach((food, index) => {
+    tEn += food.에너지 || 0;
+    tCarb += food.탄수화물 || 0;
+    tPro += food.단백질 || 0;
+    tFat += food.지방 || 0;
+
+    const imgUrl = food._imgOverride || getFoodImgUrl(food.식품명);
+    const isEditMode = editId !== null;
+    const photoBtn = isEditMode
+      ? `<button class="btn btn-xs btn-outline-secondary" style="font-size:10px; padding:2px 6px; position:absolute; bottom:0; right:0; border-radius:0 0 6px 0;" onclick="editFoodPhoto(${index})" title="사진 변경">📷</button>`
+      : "";
+
+    list.innerHTML += `
+        <li class="list-group-item py-2 px-2 mb-1 border rounded shadow-sm" style="display:grid; grid-template-columns:56px 1fr auto; gap:8px; align-items:center;">
+            <div style="position:relative;">
+                <img src="${imgUrl}" style="width:56px; height:56px; object-fit:cover; border-radius:6px;" alt="${food.식품명}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop'">
+                ${photoBtn}
+            </div>
+            <div>
+                <span class="d-block fw-bold small">${food.식품명} <span class="badge bg-light text-dark fw-normal">${food.식품중량}</span></span>
+                <span class="small text-success">${food.에너지} kcal</span>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" onclick="removeFood(${index})">✕</button>
+        </li>
+        `;
+  });
+
+  // 합계 표시
+  nutInfo.classList.remove("d-none");
+  nutInfo.innerHTML = `
+        <div class="row text-center small">
+            <div class="col-3"><strong>열량</strong><br><span class="text-primary">${Math.round(tEn)}</span> kcal</div>
+            <div class="col-3"><strong>탄수화물</strong><br>${Math.round(tCarb)} g</div>
+            <div class="col-3"><strong>단백질</strong><br>${Math.round(tPro)} g</div>
+            <div class="col-3"><strong>지방</strong><br>${Math.round(tFat)} g</div>
+        </div>
+    `;
+}
+
+// -----------------------------
+// 음식 삭제
+// -----------------------------
+function removeFood(index) {
+  currentFoods.splice(index, 1);
+  renderSelectedFoods();
+}
+
+// -----------------------------
+// 음식 사진 수정 (편집 모드에서 개별 아이템)
+// -----------------------------
+function editFoodPhoto(index) {
+  // hidden file input이 없으면 생성
+  let fileInput = document.getElementById("_foodPhotoInput");
+  if (!fileInput) {
+    fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.id = "_foodPhotoInput";
+    fileInput.accept = "image/*";
+    fileInput.style.display = "none";
+    document.body.appendChild(fileInput);
+  }
+
+  // 기존 핸들러 제거 후 새 핸들러 등록
+  fileInput.onchange = null;
+  fileInput.value = "";
+  fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      currentFoods[index]._imgOverride = ev.target.result; // base64 저장
+      renderSelectedFoods(); // 썸네일 즉시 업데이트
+    };
+    reader.readAsDataURL(file);
+  };
+  fileInput.click();
+}
+
+// -----------------------------
+// 식단 저장 (CREATE / UPDATE)
+// -----------------------------
+async function saveDiet() {
+  const dateStr = selectedDate.toISOString().split("T")[0];
+  const type = document.getElementById("dietType").value;
+
+  if (!dateStr) {
+    alert("날짜를 선택하세요");
+    return;
+  }
+  if (currentFoods.length === 0) {
+    alert("음식을 추가하세요");
+    return;
+  }
+
+  const wasEdit = !!editId;
+
+  if (editId) {
+    // ① 수정 모드: 해당 식단을 글로벌 리스트에서 업데이트
+    const diet = {
+      식단ID: editId,
+      날짜: dateStr,
+      식사구분: type,
+      음식: [...currentFoods],
+    };
+    const idx = dietList.findIndex((d) => d["식단ID"] === editId);
+    if (idx > -1) dietList[idx] = diet;
+
+    try {
+      await fetch("http://localhost:3000/api/diet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(diet),
+      });
+    } catch (e) {
+      console.warn("백엔드 없음, 로컈 저장만.");
+    }
+
+    editId = null;
+    viewDiet(diet["식단ID"]);
+  } else {
+    // ② 추가 모드: 같은 날짜 + 식사구분 식단이 있으면 합치는 싛소, 없으면 새로 생성
+    const existing = dietList.find(
+      (d) => d["날짜"] === dateStr && d["식사구분"] === type,
+    );
+
+    if (existing) {
+      // 기존 식단에 음식 함치기
+      existing["음식"] = [...existing["음식"], ...currentFoods];
+
+      try {
+        await fetch("http://localhost:3000/api/diet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(existing),
+        });
+      } catch (e) {
+        console.warn("백엔드 없음");
+      }
+
+      viewDiet(existing["식단ID"]);
+    } else {
+      // 새 식단 생성
+      const diet = {
+        식단ID: Date.now(),
+        날짜: dateStr,
+        식사구분: type,
+        음식: [...currentFoods],
+      };
+      dietList.push(diet);
+
+      try {
+        await fetch("http://localhost:3000/api/diet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(diet),
+        });
+      } catch (e) {
+        console.warn("백엔드 없음");
+      }
+
+      viewDiet(diet["식단ID"]);
+    }
+  }
+
+  // 초기화
+  currentFoods = [];
+  renderSelectedFoods();
+  renderDietSidebar();
+
+  // 모달 닫기
+  const modalEl = document.getElementById("addDietModal");
+  const modalInstance = bootstrap.Modal.getInstance(modalEl);
+  if (modalInstance) modalInstance.hide();
+}
+
+// -----------------------------
+// 좌측 사이드바 렌더링 (Read - Sidebar)
+// -----------------------------
+function renderDietSidebar() {
+  const container = document.getElementById("mealBlocksContainer");
+  const totalCalEl = document.getElementById("dailyTotalCalories");
+  container.innerHTML = "";
+
+  const targetDateStr = selectedDate.toISOString().split("T")[0];
+
+  // 선택된 날짜의 식단만 필터링
+  const todaysDiets = dietList.filter((d) => d["날짜"] === targetDateStr);
+
+  if (todaysDiets.length === 0) {
+    container.innerHTML = `<div class="text-center text-muted small mt-4">저장된 식단이 없습니다.</div>`;
+    totalCalEl.innerText = "0";
+    document.getElementById("viewDietContent").innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🥗</div>
+            <h5>식단을 선택해주세요</h5>
+        `;
+    return;
+  }
+
+  let dailyTotal = 0;
+
+  todaysDiets.forEach((diet) => {
+    let dietTotal = 0;
+    let foodNames = [];
+
+    diet["음식"].forEach((food) => {
+      dietTotal += Number(food["에너지"] || 0);
+      foodNames.push(food["식품명"]);
+    });
+
+    dailyTotal += dietTotal;
+
+    // 배지 색상 결정
+    let badgeClass = "bg-secondary";
+    if (diet["식사구분"] === "아침") badgeClass = "bg-primary text-dark";
+    else if (diet["식사구분"] === "점심") badgeClass = "bg-primary text-dark";
+    else if (diet["식사구분"] === "저녁") badgeClass = "bg-primary text-white";
+    else if (diet["식사구분"] === "간식") badgeClass = "bg-primary text-white";
+
+    const foodNamesStr = foodNames.join(", ");
+    const dummyImgUrl = getFoodImgUrl();
+
+    container.innerHTML += `
+        <div class="meal-block" id="meal-block-${diet["식단ID"]}" onclick="viewDiet(${diet["식단ID"]})">
+            <img src="${dummyImgUrl}" class="meal-block-img" alt="Meal">
+            <div class="meal-block-content">
+                <div class="meal-block-header">
+                    <div>
+                        <span class="badge ${badgeClass} me-1">${diet["식사구분"]}</span>
+                        <span class="meal-block-calories">${Math.round(dietTotal)} kcal</span>
+                    </div>
+                </div>
+                <div class="meal-block-title mb-1">${foodNames[0]} ${foodNames.length > 1 ? `외 ${foodNames.length - 1}건` : ""}</div>
+                <div class="meal-block-items">${foodNamesStr}</div>
+            </div>
+        </div>
+        `;
+  });
+
+  totalCalEl.innerText = Math.round(dailyTotal).toLocaleString();
+
+  // 첫 번째 식단을 자동으로 표시
+  if (todaysDiets.length > 0) {
+    viewDiet(todaysDiets[0]["식단ID"]);
+  }
+}
+
+// -----------------------------
+// 식단 상세 조회 (Read - Detail Panel)
+// -----------------------------
+function viewDiet(id) {
+  const diet = dietList.find((d) => d["식단ID"] === id);
+  if (!diet) return;
+
+  // 활성 블록 스타일 적용
+  document
+    .querySelectorAll(".meal-block")
+    .forEach((el) => el.classList.remove("active"));
+  const block = document.getElementById(`meal-block-${id}`);
+  if (block) block.classList.add("active");
+
+  const viewContent = document.getElementById("viewDietContent");
+
+  let totalEnergy = 0,
+    totalCarb = 0,
+    totalPro = 0,
+    totalFat = 0;
+  let foodHTML = "";
+
+  diet["음식"].forEach((food) => {
+    totalEnergy += Number(food["에너지"] || 0);
+    totalCarb += Number(food["탄수화물"] || 0);
+    totalPro += Number(food["단백질"] || 0);
+    totalFat += Number(food["지방"] || 0);
+
+    const imgUrl = getFoodImgUrl(food["식품명"]);
+
+    foodHTML += `
+        <li class="list-group-item py-3 px-3" style="display:grid; grid-template-columns:64px 1fr auto; gap:12px; align-items:center;">
+            <img src="${imgUrl}" style="width:64px; height:64px; object-fit:cover; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.1)" alt="${food["식품명"]}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop'">
+            <div>
+                <div class="fw-bold text-dark mb-1">${food["식품명"]} <span class="badge bg-light text-dark fw-normal ms-1">${food["식품중량"]}</span></div>
+                <div class="small text-muted">탄수화물 ${food["탄수화물"]}g | 단백질 ${food["단백질"]}g | 지방 ${food["지방"]}g</div>
+            </div>
+            <div class="text-end">
+                <div class="fs-5 fw-bold">${food["에너지"]}</div>
+                <div class="small text-muted">kcal</div>
+            </div>
+        </li>
+        `;
+  });
+
+  viewContent.innerHTML = `
+        <div class="card border-0 shadow-sm w-100 h-100 d-flex flex-column">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-secondary fs-6 px-3 py-2 me-2">${diet["식사구분"]}</span>
+                    <span class="text-muted fw-bold">${diet["날짜"]}</span>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-1 px-3" onclick="editDiet(${diet["식단ID"]})">수정</button>
+                    <button class="btn btn-sm px-3" onclick="deleteDiet(${diet["식단ID"]})">삭제</button>
+                </div>
+            </div>
+            
+            <div class="card-body d-flex flex-column">
+                <div class="nutrition-totals p-4 mb-4 text-center rounded bg-light border">
+                    <h6 class="text-muted fw-bold mb-3">식단 총 영양 정보</h6>
+                    <div class="row">
+                        <div class="col-3">
+                            <div class="small text-muted mb-1">총 열량</div>
+                            <div class="fs-4 fw-bold text-primary"><span id="happy">${Math.round(totalEnergy)}</span><span class="fs-6 fw-normal text-dark">kcal</span></div>
+                        </div>
+                        <div class="col-3">
+                            <div class="small text-muted mb-1">탄수화물</div>
+                            <div class="fs-5 fw-bold">${Math.round(totalCarb)}<span class="fs-6 fw-normal text-muted">g</span></div>
+                        </div>
+                        <div class="col-3">
+                            <div class="small text-muted mb-1">단백질</div>
+                            <div class="fs-5 fw-bold">${Math.round(totalPro)}<span class="fs-6 fw-normal text-muted">g</span></div>
+                        </div>
+                        <div class="col-3">
+                            <div class="small text-muted mb-1">지방</div>
+                            <div class="fs-5 fw-bold">${Math.round(totalFat)}<span class="fs-6 fw-normal text-muted">g</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-3 text-dark">음식 (<span class="text-primary">${diet["음식"].length}</span>)</h6>
+                <ul class="list-group list-group-flush border rounded flex-grow-1 overflow-auto">
+                    ${foodHTML}
+                </ul>
+            </div>
+        </div>
+    `;
+
+  // 약간의 페이드인 효과
+  const panel = document.getElementById("viewDietPanel");
+  panel.style.opacity = 0;
+  setTimeout(() => {
+    panel.style.opacity = 1;
+  }, 50);
+}
+
+// -----------------------------
+// 식단 수정
+// -----------------------------
+// -----------------------------
+// 식단 수정 (Update)
+// -----------------------------
+function editDiet(id) {
+  const diet = dietList.find((d) => d["식단ID"] === id);
+  if (!diet) return;
+
+  // 마스터 날짜 동기화
+  selectedDate = new Date(diet["날짜"]);
+  document.getElementById("currentDateDisplay").value = diet["날짜"];
+  renderDietSidebar();
+
+  document.getElementById("dietType").value = diet["식사구분"];
+
+  currentFoods = [...diet["음식"]];
+  renderSelectedFoods();
+
+  editId = id;
+
+  document.getElementById("addDietModalLabel").innerText = "식단 수정하기";
+  document.getElementById("btnSaveDiet").innerText = "수정 내용 저장하기";
+
+  const modal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById("addDietModal"),
+  );
+  modal.show();
+}
+
+// -----------------------------
+// 식단 삭제 (Delete)
+// -----------------------------
+async function deleteDiet(id) {
+  if (confirm("이 식단 기록을 정말 삭제하시겠습니까?")) {
+    dietList = dietList.filter((d) => d["식단ID"] !== id);
+    renderDietSidebar();
+
+    // 상세 패널 닫기 (플레이스홀더 표시)
+    document.getElementById("viewDietContent").innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🥗</div>
+            <h5>식단을 선택해주세요</h5>
+        `;
+
+    // 서버 삭제 비동기 요청
+    try {
+      await fetch(`http://localhost:3000/api/diet/${id}`, { method: "DELETE" });
+    } catch (e) {
+      console.warn(
+        "Backend not running, deleted only locally. Run 'python server.py' to save actual files.",
+      );
+    }
+  }
+}
