@@ -384,11 +384,11 @@ scoredResult.sort((a, b) => b.calculatedScore - a.calculatedScore);
 
 |                      Bulkup Low                       |                      Bulkup Top                       |
 | :---------------------------------------------------: | :---------------------------------------------------: |
-| ![alt text](client\image\food\morning_bulkup_low.png) | ![alt text](client\image\food\morning_bulkup_top.png) |
+| ![alt text](client/image/food/morning_bulkup_low.png) | ![alt text](client/image/food/morning_bulkup_top.png) |
 
 |                      Diet Low                       |                      Diet Top                       |
 | :-------------------------------------------------: | :-------------------------------------------------: |
-| ![alt text](client\image\food\morning_diet_low.png) | ![alt text](client\image\food\morning_diet_top.png) |
+| ![alt text](client/image/food/morning_diet_low.png) | ![alt text](client/image/food/morning_diet_top.png) |
 
 ---
 
