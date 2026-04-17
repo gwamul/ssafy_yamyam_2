@@ -98,3 +98,61 @@
 ![alt text](<image/challenge/내 챌린지.png>)
 
 현재 진행 중인 챌린지와 목표를 확인할 수 있습니다.
+
+# 📝 알고리즘 적용 기획서 #1
+
+## ◼ 내용 : bcrypt를 이용한 사용자 인증 및 보안 서비스
+제공된 `user_server.js`를 기반으로, 사용자 비밀번호를 평문으로 저장하지 않고 **단방향 암호화(Hashing)**하여 보안성을 극대화한 인증 시스템입니다.
+
+## ◼ 적용 알고리즘 : bcrypt (Password Hashing Function)
+
+## ◼ 알고리즘 개요
+**bcrypt**는 패스워드 저장을 위해 설계된 강력한 해시 함수로, 단순 해시 함수와 차별화되는 보안 메커니즘을 제공합니다.
+
+* **Salting (솔팅):** `bcrypt.genSalt(10)`을 통해 생성된 고유한 Salt 값을 비밀번호와 결합합니다. 이를 통해 레인보우 테이블 공격(미리 계산된 해시 표)을 효과적으로 방어합니다.
+* **Key Stretching (키 스트레칭):** 해싱 연산을 반복하여 Brute-force 공격에 필요한 연산 시간을 의도적으로 지연시킵니다.
+* **Adaptive Cost:** 성능에 따라 해싱 강도를 조절할 수 있습니다. 본 코드에서는 `cost factor 10`을 적용했습니다.
+
+## ◼ 적용 서비스 : Yamyam (얌얌) 건강 관리 플랫폼
+- **서비스 명:** 보안 강화형 사용자 인증 시스템 (Secure User Authentication System)
+
+---
+
+## ◼ 적용 서비스 개발 개요 (1/2 페이지 분량)
+
+### 1. 기술적 구현 배경
+본 서비스는 사용자의 신체 정보(키, 몸무게, 질환 등)를 다루는 **Yamyam** 플랫폼의 특성상, 계정 보안을 최우선으로 설계되었습니다. 데이터베이스(Memory DB)가 노출되더라도 사용자의 실제 비밀번호는 복구할 수 없도록 **bcryptjs** 라이브러리를 활용하여 단방향 암호화를 구현했습니다.
+
+### 2. 핵심 구현 로직 (Source Code Logic)
+
+#### A. 회원가입 시 비밀번호 해싱 (Registration)
+사용자가 입력한 평문 비밀번호를 서버에서 수신한 즉시 암호화 프로세스를 시작합니다.
+1.  `bcrypt.genSalt(10)`를 사용하여 10단계의 강도를 가진 고유 Salt를 생성합니다.
+2.  `bcrypt.hash(data.pw, salt)`를 통해 Salt와 평문을 결합한 최종 해시값을 생성합니다.
+3.  생성된 `hashedPassword`를 메모리 DB(`userDb`)에 저장합니다.
+
+#### B. 로그인 시 비밀번호 검증 (Authentication)
+비밀번호는 단방향으로 암호화되어 복호화가 불가능하므로, `compare` 함수를 사용합니다.
+1.  로그인 시도 시 입력된 평문 비밀번호와 DB에 저장된 해시값을 불러옵니다.
+2.  `bcrypt.compare(data.pw, user.pw)`를 호출하여 입력값과 기존 해시값의 일치 여부를 연산합니다.
+3.  일치할 경우에만 `yamyam_session`을 발급하여 인증을 완료합니다.
+
+#### C. 정보 수정 시 암호화 업데이트 (Update)
+사용자가 프로필 수정 시 비밀번호를 변경하는 경우(`if (data.pw)`), 새로운 Salt를 생성하고 해싱을 다시 수행하여 DB를 갱신하도록 설계하여 연속적인 보안성을 유지합니다.
+
+### 3. 주요 코드 스니펫 (Node.js)
+
+```javascript
+// user_server.js 내 구현부
+const salt = await bcrypt.genSalt(10); // Salt 생성
+const hashedPassword = await bcrypt.hash(data.pw, salt); // 해싱 저장
+
+// 검증부
+const isMatch = await bcrypt.compare(data.pw, user.pw); // 평문 vs 해시 비교
+
+```
+### 내부 Map 에 해쉬된 상태로 저장된 모습
+<img width="1481" height="113" alt="data" src="https://github.com/user-attachments/assets/9213ebeb-09f5-4525-bfc4-876afe7020cb" />
+
+
+
